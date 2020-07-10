@@ -1,7 +1,10 @@
+import 'package:flutkit/screens/test2_screen.dart';
 import 'package:flutkit/widgets/sidebar.dart';
 import 'package:flutter/material.dart';
 
 class Test1Screen extends StatefulWidget {
+  static String route = "test1screen";
+
   @override
   _Test1ScreenState createState() => _Test1ScreenState();
 }
@@ -17,6 +20,7 @@ class _Test1ScreenState extends State<Test1Screen> {
             color: Colors.black
           ),
         ),
+        iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
 
       ),
@@ -28,17 +32,29 @@ class _Test1ScreenState extends State<Test1Screen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               RaisedButton(
+                child: Text('navigate'),
+                onPressed: () {
+                  setState(() {
+                    // Navigator.pushNamed(context, Test2Screen.route);
+                    Navigator.of(context).pushNamed(Test2Screen.route, arguments: Test2ScreenArguments("Navigated from test1 page!"));
+                    // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Test2Screen()));
+                    // widget.navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => Test2Screen()));
+                  });
+                },
+              ),
+              RaisedButton(
                 child: Text('open menu'),
                 onPressed: () {
                   setState(() {
-                    SideBar.of(context).isMenuOpen(true);
+                    SideBar.of(context).isMenuOpen = true;
                   });
                 },
-              ),RaisedButton(
+              ),
+              RaisedButton(
                 child: Text('close menu'),
                 onPressed: () {
                   setState(() {
-                    SideBar.of(context).isMenuOpen(false);
+                    SideBar.of(context).isMenuOpen = false;
                   });
                 },
               ),
@@ -46,7 +62,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                 child: Text('open submenu'),
                 onPressed: () {
                   setState(() {
-                    SideBar.of(context).isSubMenuOpen(true);
+                    SideBar.of(context).isSubMenuOpen = true;
                   });
                 },
               ),
@@ -54,7 +70,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                 child: Text('close submenu'),
                 onPressed: () {
                   setState(() {
-                    SideBar.of(context).isSubMenuOpen(false);
+                    SideBar.of(context).isSubMenuOpen = false;
                   });
                 },
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SubMenuScreen extends StatefulWidget {
+  static String route = "subMenuScreen";
   @override
   _SubMenuScreenState createState() => _SubMenuScreenState();
 }

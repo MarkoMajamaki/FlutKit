@@ -113,10 +113,15 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   }
 
   ///
-  /// Open menu with animation. Animate double from 0 -> 1 (close -> open) and
+  /// Is menu open
+  ///
+  bool get isMenuOpen => _isMenuOpen;
+
+  ///
+  /// Open or close menu with animation. Animate double from 0 -> 1 (close -> open) and
   /// do slide and width calculations based on that value.
   ///
-  void isMenuOpen(bool isOpen) {
+  set isMenuOpen(bool isOpen) {
     if (widget.menu == null) {
       return;
     }
@@ -153,10 +158,15 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   }
 
   ///
-  /// Open submenu with animation. Animate double from 0 -> 1 (close -> open) and
+  /// Is sub menu open
+  ///
+  bool get isSubMenuOpen => _isSubMenuOpen;
+
+  ///
+  /// Open or close submenu with animation. Animate double from 0 -> 1 (close -> open) and
   /// do slide calculation based on that value.
   ///
-  void isSubMenuOpen(bool isOpen) {
+  set isSubMenuOpen(bool isOpen) {
     if (widget.submenu == null) {
       return;
     }
@@ -225,10 +235,10 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
             onTap: () {
               // Close submenu first
               if (_isSubMenuOpen){
-                isSubMenuOpen(false);
+                isSubMenuOpen = false;
               }
               else if (_isMenuOpen){
-                isMenuOpen(false);
+                isMenuOpen = false;
               }
             },
             child: Container(
@@ -583,15 +593,15 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
     double menuOpenPercent = getMenuOpenPercent();
 
     if (menuOpenPercent < 0.5 || (_panUpdateDetails.delta.dx.abs() > 10 && _panUpdateDetails.globalPosition.dx < menuRight)) {
-      isMenuOpen(false);
+      isMenuOpen = false;
     } else {
-      isMenuOpen(true);
+      isMenuOpen = true;
     }
 
     if (getSubMenuOpenPercent() < 0.5 || (_panUpdateDetails.delta.dx.abs() > 10 && _panUpdateDetails.globalPosition.dx < subMenuRight)){
-      isSubMenuOpen(false);
+      isSubMenuOpen = false;
     } else {
-      isSubMenuOpen(true);
+      isSubMenuOpen = true;
     }
 
     _panUpdateDetails = null;
