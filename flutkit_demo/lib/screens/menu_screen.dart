@@ -1,4 +1,4 @@
-import 'package:flutkit/sidebar.dart';
+import 'package:flutkit/flutkit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
