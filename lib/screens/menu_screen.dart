@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'home_screen.dart';
 
 class MenuScreen extends StatefulWidget {
   @override
@@ -17,30 +14,3 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 }
-
-/*
-Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            FlatButton(
-                child: Text('Close menu', style: TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  setState(() {
-                    Provider.of<HomeModel>(context, listen: false).closeMenu();
-                  });
-                }),
-            FlatButton(
-                child: Text('Open submenu', style: TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  setState(() {
-                    Provider.of<HomeModel>(context, listen: false).openSubMenu();
-                  });
-                }),
-
-          ],
-        ),
-      ),
-
-*/

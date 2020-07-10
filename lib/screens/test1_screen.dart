@@ -1,17 +1,12 @@
+import 'package:flutkit/widgets/sidebar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'home_screen.dart';
 
 class Test1Screen extends StatefulWidget {
-
   @override
   _Test1ScreenState createState() => _Test1ScreenState();
 }
 
-class _Test1ScreenState extends State<Test1Screen> with SingleTickerProviderStateMixin {
-
-
+class _Test1ScreenState extends State<Test1Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,14 +31,14 @@ class _Test1ScreenState extends State<Test1Screen> with SingleTickerProviderStat
                 child: Text('open menu'),
                 onPressed: () {
                   setState(() {
-                    Provider.of<HomeModel>(context, listen: false).openMenu();
+                    SideBar.of(context).isMenuOpen(true);
                   });
                 },
               ),RaisedButton(
                 child: Text('close menu'),
                 onPressed: () {
                   setState(() {
-                    Provider.of<HomeModel>(context, listen: false).closeMenu();
+                    SideBar.of(context).isMenuOpen(false);
                   });
                 },
               ),
@@ -51,7 +46,7 @@ class _Test1ScreenState extends State<Test1Screen> with SingleTickerProviderStat
                 child: Text('open submenu'),
                 onPressed: () {
                   setState(() {
-                    Provider.of<HomeModel>(context, listen: false).openSubMenu();
+                    SideBar.of(context).isSubMenuOpen(true);
                   });
                 },
               ),
@@ -59,7 +54,7 @@ class _Test1ScreenState extends State<Test1Screen> with SingleTickerProviderStat
                 child: Text('close submenu'),
                 onPressed: () {
                   setState(() {
-                    Provider.of<HomeModel>(context, listen: false).closeSubMenu();
+                    SideBar.of(context).isSubMenuOpen(false);
                   });
                 },
               ),

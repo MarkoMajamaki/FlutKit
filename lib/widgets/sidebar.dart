@@ -11,7 +11,6 @@ class SideBar extends StatefulWidget {
   final Widget content;
   final Widget menu;
   final Widget submenu;
-  final SideBarController controller;
   final SlideBarModalBackgroundColor modalBackgroundColor;
   final double modalBackgroundOpacity;
   final ContentBehavior contentBehavior;
@@ -32,7 +31,6 @@ class SideBar extends StatefulWidget {
     @required this.content,
     this.menu,
     this.submenu,
-    this.controller,
     this.modalBackgroundColor = SlideBarModalBackgroundColor.Black,
     this.modalBackgroundOpacity = 0.4,
     this.contentBehavior = ContentBehavior.Move,
@@ -51,6 +49,13 @@ class SideBar extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _SideBarState();
+
+  ///
+  /// Get first SideBar ancestor state
+  ///
+  static _SideBarState of(BuildContext context) {
+    return context.findAncestorStateOfType<_SideBarState>();
+  }
 }
 
 ///
@@ -61,7 +66,6 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   bool _isSubMenuOpen = false;
 
   double _screenWidth;
-  double _screenHeight;
 
   DragUpdateDetails _panUpdateDetails;
   DragStartDetails _panStartDetails;
@@ -72,6 +76,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   AnimationController _subMenuAnimationController;
   Animation<double> _subMenuAnimation;
 
+  // Is panning active
   bool get isPanning => _panStartDetails != null;
 
   // Menu right side current actual x coordinate
@@ -193,10 +198,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Size deviceSize = MediaQuery.of(context).size;
-    _screenHeight = deviceSize.height;
     _screenWidth = deviceSize.width;
-
-    widget.controller.sideBar = this;
 
     return Stack(
       children: <Widget>[
@@ -616,31 +618,5 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
           ),
       ),
     );
-  }
-}
-
-///
-/// SideBar controller (refactor later!)
-///
-class SideBarController extends ChangeNotifier {
-
-  _SideBarState sideBar;
-
-  ///
-  /// Set menu open
-  ///
-  void isMenuOpen(bool isOpen) {
-    if (sideBar != null){
-      sideBar.isMenuOpen(isOpen);
-    }
-  }
-
-  ///
-  /// Set submenu open
-  ///
-  void isSubMenuOpen(bool isOpen) {
-    if (sideBar != null){
-      sideBar.isSubMenuOpen(isOpen);
-    }
   }
 }
