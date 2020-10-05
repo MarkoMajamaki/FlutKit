@@ -1,4 +1,5 @@
 import 'package:flutkit/flutkit.dart';
+import 'package:flutkit_demo/screens/layout_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../routes.dart';
@@ -15,10 +16,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   @override
   Widget build(BuildContext context) {
-
     // Is app running on mobile
     final bool useMobileLayout = MediaQuery.of(context).size.shortestSide < 600;
 
@@ -26,7 +25,7 @@ class _HomeState extends State<Home> {
       return SideBar(
         content: MaterialApp(
           navigatorKey: navigatorKey,
-          initialRoute: Test1Screen.route,
+          initialRoute: LayoutScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
@@ -43,7 +42,7 @@ class _HomeState extends State<Home> {
         verticalSeparatorThickness: 1,
         verticalSeparatorColor: Colors.black12,
       );
-    } else{
+    } else {
       return SideBar(
         content: MaterialApp(
           navigatorKey: navigatorKey,

@@ -1,2 +1,4 @@
 library flutkit;
-export 'sidebar.dart';
+
+export 'widgets/sidebar.dart';
+export 'layouts/wraplayout.dart';
