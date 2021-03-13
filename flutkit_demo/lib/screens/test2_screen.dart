@@ -13,19 +13,16 @@ class Test2Screen extends StatefulWidget {
 class _Test2ScreenState extends State<Test2Screen> {
   @override
   Widget build(BuildContext context) {
-    final Test2ScreenArguments args = ModalRoute.of(context).settings.arguments;
+    Object? args = ModalRoute.of(context)!.settings.arguments;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          args.text,
-          style: TextStyle(
-              color: Colors.black
-          ),
+          args == null ? "" : (args as Test2ScreenArguments).text,
+          style: TextStyle(color: Colors.black),
         ),
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
-
       ),
       body: Container(
         color: Colors.green,
@@ -36,7 +33,7 @@ class _Test2ScreenState extends State<Test2Screen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                RaisedButton(
+                ElevatedButton(
                   child: Text('navigate to page 1'),
                   onPressed: () {
                     setState(() {
@@ -45,7 +42,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text('navigate back'),
                   onPressed: () {
                     setState(() {
@@ -53,7 +50,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text('open menu'),
                   onPressed: () {
                     setState(() {
@@ -61,7 +58,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text('close menu'),
                   onPressed: () {
                     setState(() {
@@ -69,7 +66,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text('open submenu'),
                   onPressed: () {
                     setState(() {
@@ -77,7 +74,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text('close submenu'),
                   onPressed: () {
                     setState(() {

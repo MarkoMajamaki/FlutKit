@@ -11,25 +11,25 @@ enum WrapOrientation { Vertical, Horizontal }
 /// Layout children vertical or horizontal and start new line if not enought space
 ///
 class WrapLayout extends MultiChildRenderObjectWidget {
-  final double columnWidth;
+  final double? columnWidth;
   final double columnMinWidth;
   final double columnMaxWidth;
-  final int columnsCount;
-  final int maxColumnsCount;
+  final int? columnsCount;
+  final int? maxColumnsCount;
   final double columnSpacing;
   final double rowSpacing;
   final WrapOrientation orientation;
 
   WrapLayout(
-      {Key key,
-      double columnWidth,
-      double columnMaxWidth,
-      double columnMinWidth,
-      int columnsCount,
-      int maxColumnsCount,
-      double columnSpacing,
-      double rowSpacing,
-      WrapOrientation orientation,
+      {Key? key,
+      double? columnWidth,
+      double columnMaxWidth = double.maxFinite,
+      double columnMinWidth = 0,
+      int? columnsCount,
+      int? maxColumnsCount,
+      double columnSpacing = 0,
+      double rowSpacing = 0,
+      WrapOrientation orientation = WrapOrientation.Horizontal,
       List<Widget> children = const []})
       : this.columnWidth = columnWidth,
         this.columnMaxWidth = columnMaxWidth,
@@ -38,7 +38,7 @@ class WrapLayout extends MultiChildRenderObjectWidget {
         this.maxColumnsCount = maxColumnsCount,
         this.columnSpacing = columnSpacing,
         this.rowSpacing = rowSpacing,
-        this.orientation = orientation ?? WrapOrientation.Horizontal,
+        this.orientation = orientation,
         super(key: key, children: children);
 
   ///
@@ -85,13 +85,13 @@ class RenderWrapLayout extends RenderBox
   int _actualColumnCount = 0;
 
   RenderWrapLayout({
-    double columnWidth,
-    double columnMaxWidth,
-    double columnMinWidth,
-    int columnsCount,
-    int maxColumnsCount,
-    double columnSpacing,
-    double rowSpacing,
+    double? columnWidth,
+    double columnMaxWidth = double.maxFinite,
+    double columnMinWidth = 0,
+    int? columnsCount,
+    int? maxColumnsCount,
+    double columnSpacing = 0,
+    double rowSpacing = 0,
     WrapOrientation orientation = WrapOrientation.Horizontal,
   })  : _columnWidth = columnWidth,
         _columnMaxWidth = columnMaxWidth,
@@ -106,57 +106,57 @@ class RenderWrapLayout extends RenderBox
   /// Properties
   ///
 
-  double get columnWidth => _columnWidth;
-  double _columnWidth;
-  set columnWidth(double value) {
+  double? get columnWidth => _columnWidth;
+  double? _columnWidth;
+  set columnWidth(double? value) {
     _columnWidth = value;
     markNeedsLayout();
   }
 
   double get columnMaxWidth => _columnMaxWidth;
-  double _columnMaxWidth;
+  double _columnMaxWidth = double.maxFinite;
   set columnMaxWidth(double value) {
     _columnMaxWidth = value;
     markNeedsLayout();
   }
 
   double get columnMinWidth => _columnMinWidth;
-  double _columnMinWidth;
+  double _columnMinWidth = 0;
   set columnMinWidth(double value) {
     _columnMinWidth = value;
     markNeedsLayout();
   }
 
-  int get columnsCount => _columnsCount;
-  int _columnsCount;
-  set columnsCount(int value) {
+  int? get columnsCount => _columnsCount;
+  int? _columnsCount;
+  set columnsCount(int? value) {
     _columnsCount = value;
     markNeedsLayout();
   }
 
-  int get maxColumnsCount => _maxColumnsCount;
-  int _maxColumnsCount;
-  set maxColumnsCount(int value) {
+  int? get maxColumnsCount => _maxColumnsCount;
+  int? _maxColumnsCount;
+  set maxColumnsCount(int? value) {
     _maxColumnsCount = value;
     markNeedsLayout();
   }
 
   double get columnSpacing => _columnSpacing;
-  double _columnSpacing;
+  double _columnSpacing = 0;
   set columnSpacing(double value) {
     _columnSpacing = value;
     markNeedsLayout();
   }
 
   double get rowSpacing => _rowSpacing;
-  double _rowSpacing;
+  double _rowSpacing = 0;
   set rowSpacing(double value) {
     _rowSpacing = value;
     markNeedsLayout();
   }
 
   WrapOrientation get orientation => _orientation;
-  WrapOrientation _orientation;
+  WrapOrientation _orientation = WrapOrientation.Horizontal;
   set orientation(WrapOrientation value) {
     _orientation = value;
     markNeedsLayout();
@@ -169,8 +169,9 @@ class RenderWrapLayout extends RenderBox
   ///
   @override
   void setupParentData(RenderBox child) {
-    if (child.parentData is! WrapParentData)
+    if (child.parentData is! WrapParentData) {
       child.parentData = WrapParentData();
+    }
   }
 
   ///
@@ -219,7 +220,7 @@ class RenderWrapLayout extends RenderBox
   }
 
   @override
-  double computeDistanceToActualBaseline(TextBaseline baseline) {
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
     return defaultComputeDistanceToHighestActualBaseline(baseline);
   }
 
@@ -267,23 +268,18 @@ class RenderWrapLayout extends RenderBox
     _calculateColumns(constraints.maxWidth);
 
     // Children locations
-    List<Rect> locations = List<Rect>();
-
-    final double actualColumnSpacing = _columnSpacing ?? 0;
-    final double actualRowSpacing = _rowSpacing ?? 0;
-    final double actualColumnMaxWidth = _columnMaxWidth ?? double.maxFinite;
-    final double actualColumnMinWidth = _columnMinWidth ?? 0;
+    List<Rect> locations = [];
 
     if (_columnWidth == null &&
-        actualColumnMinWidth == 0 &&
-        actualColumnMaxWidth == double.maxFinite &&
+        _columnMinWidth == 0 &&
+        _columnMaxWidth == double.maxFinite &&
         _columnsCount == null) {
       ///
       /// If no columns
       ///
 
-      double horizontalOffset = 0;
-      double verticalOffset = 0;
+      double xOffset = 0;
+      double yOffset = 0;
       double currentRowHeight = 0;
 
       var child = firstChild;
@@ -291,41 +287,40 @@ class RenderWrapLayout extends RenderBox
         WrapParentData childParentData = child.parentData as WrapParentData;
 
         child.layout(constraints, parentUsesSize: true);
-        final bool newRow =
-            horizontalOffset + child.size.width > constraints.maxWidth;
+        final bool newRow = xOffset + child.size.width > constraints.maxWidth;
 
         if (newRow || childParentData.fillRow || childParentData.rowStart) {
-          verticalOffset += currentRowHeight;
-          horizontalOffset = 0;
+          yOffset += currentRowHeight;
+          xOffset = 0;
           currentRowHeight = 0;
         }
 
         Rect location;
         if (childParentData.fillRow) {
-          location = Rect.fromLTWH(horizontalOffset, verticalOffset,
-              constraints.maxWidth, child.size.height);
+          location = Rect.fromLTWH(
+              xOffset, yOffset, constraints.maxWidth, child.size.height);
         } else if (childParentData.rowEnd) {
-          location = Rect.fromLTWH(horizontalOffset, verticalOffset,
-              constraints.maxWidth - horizontalOffset, child.size.height);
+          location = Rect.fromLTWH(xOffset, yOffset,
+              constraints.maxWidth - xOffset, child.size.height);
         } else {
-          location = Rect.fromLTWH(horizontalOffset, verticalOffset,
-              child.size.width, child.size.height);
+          location = Rect.fromLTWH(
+              xOffset, yOffset, child.size.width, child.size.height);
         }
 
         childParentData.offset = Offset(location.left, location.top);
 
         locations.add(location);
 
-        horizontalOffset += child.size.width + actualColumnSpacing;
+        xOffset += child.size.width + _columnSpacing;
 
         // Update current row height
-        if (currentRowHeight < child.size.height + actualRowSpacing) {
-          currentRowHeight = child.size.height + actualRowSpacing;
+        if (currentRowHeight < child.size.height + _rowSpacing) {
+          currentRowHeight = child.size.height + _rowSpacing;
         }
 
         if (childParentData.fillRow || childParentData.rowEnd) {
-          verticalOffset += currentRowHeight;
-          horizontalOffset = 0;
+          yOffset += currentRowHeight;
+          xOffset = 0;
           currentRowHeight = 0;
         }
 
@@ -336,24 +331,25 @@ class RenderWrapLayout extends RenderBox
       /// If columns
       ///
 
-      double currentColumnIndex = 0;
+      double columnIndex = 0;
       double currentRowHeight = 0;
-      double verticalOffset = 0;
+      double yOffset = 0;
 
       var child = firstChild;
       while (child != null) {
         WrapParentData childParentData = child.parentData as WrapParentData;
 
-        bool newRow = currentColumnIndex +
-                (childParentData.columnSpan > 1
-                    ? childParentData.columnSpan
-                    : 1) >
-            _actualColumnCount;
+        int childColumnSpan = 1;
+        if (childParentData.columnSpan > 1) {
+          childColumnSpan = childParentData.columnSpan;
+        }
+
+        bool newRow = columnIndex + childColumnSpan > _actualColumnCount;
 
         // If there is no enought free columns on the right or children is filled to whole row, go to new row
         if (newRow || childParentData.fillRow || childParentData.rowStart) {
-          verticalOffset += currentRowHeight;
-          currentColumnIndex = 0;
+          yOffset += currentRowHeight;
+          columnIndex = 0;
           currentRowHeight = 0;
         }
 
@@ -363,56 +359,50 @@ class RenderWrapLayout extends RenderBox
           childAvailableWidth = constraints.maxWidth;
         } else {
           // Add column span to available width
-          childAvailableWidth = _actualColumnWidth *
-              (childParentData.columnSpan == 0
-                  ? 1
-                  : childParentData.columnSpan);
+          childAvailableWidth = _actualColumnWidth * childColumnSpan;
 
-          if (currentColumnIndex + childParentData.columnSpan >
-              _actualColumnCount) {
-            childAvailableWidth += actualColumnSpacing;
+          if (columnIndex + childParentData.columnSpan > _actualColumnCount) {
+            childAvailableWidth += _columnSpacing;
           } else {
-            int widthInColumns =
-                childParentData.columnSpan > 1 ? childParentData.columnSpan : 1;
+            int widthInColumns = childColumnSpan;
 
-            if (childParentData.nextSibling != null) {
+            if (childParentData.nextSibling != null &&
+                childParentData.nextSibling!.parentData != null) {
               WrapParentData nextChildParentData =
-                  childParentData.nextSibling.parentData as WrapParentData;
+                  childParentData.nextSibling!.parentData as WrapParentData;
 
               // If not last child, then add available span between columns to child available width
-              int nextChildWidthInColumns = nextChildParentData.columnSpan > 1
-                  ? nextChildParentData.columnSpan
-                  : 1;
+              int nextChildWidthInColumns = 1;
+              if (nextChildParentData.columnSpan > 1) {
+                nextChildWidthInColumns = nextChildParentData.columnSpan;
+              }
 
-              // IS next child going to new row
+              // Is next child going to new row
               if (nextChildParentData.fillRow ||
-                  currentColumnIndex +
-                          widthInColumns +
-                          nextChildWidthInColumns >=
+                  columnIndex + widthInColumns + nextChildWidthInColumns >=
                       _actualColumnCount ||
                   childParentData.rowEnd ||
                   nextChildParentData.rowStart) {
                 childAvailableWidth +=
-                    actualColumnSpacing * max(0, widthInColumns - 1);
+                    _columnSpacing * max(0, widthInColumns - 1);
               }
             } else {
               // If last child and has span, then add all space between columns to child available width
               childAvailableWidth +=
-                  actualColumnSpacing * max(0, widthInColumns - 1);
+                  _columnSpacing * max(0, widthInColumns - 1);
             }
           }
         }
 
-        double horizontalOffset =
-            currentColumnIndex * (_actualColumnWidth + actualColumnSpacing);
+        double xOffset = columnIndex * (_actualColumnWidth + _columnSpacing);
 
         // If row is ending, then take all available width (ignore column spanning)
         if (childParentData.rowEnd) {
-          childAvailableWidth = constraints.maxWidth - horizontalOffset;
+          childAvailableWidth = constraints.maxWidth - xOffset;
         } else {
           // Prevent child to spanned out of the available width when column span is used and column has static width
           childAvailableWidth =
-              min(childAvailableWidth, constraints.maxWidth - horizontalOffset);
+              min(childAvailableWidth, constraints.maxWidth - xOffset);
 
           child.layout(
               BoxConstraints(
@@ -423,24 +413,24 @@ class RenderWrapLayout extends RenderBox
               parentUsesSize: true);
 
           // Update current row height
-          if (currentRowHeight < child.size.height + actualRowSpacing) {
-            currentRowHeight = child.size.height + actualRowSpacing;
+          if (currentRowHeight < child.size.height + _rowSpacing) {
+            currentRowHeight = child.size.height + _rowSpacing;
           }
 
-          Rect location = Rect.fromLTWH(horizontalOffset, verticalOffset,
-              childAvailableWidth, child.size.height);
+          Rect location = Rect.fromLTWH(
+              xOffset, yOffset, childAvailableWidth, child.size.height);
 
           locations.add(location);
 
           childParentData.offset = Offset(location.left, location.top);
 
           // Increase column counter
-          currentColumnIndex +=
+          columnIndex +=
               childParentData.columnSpan > 1 ? childParentData.columnSpan : 1;
 
           if (childParentData.fillRow || childParentData.rowEnd) {
-            verticalOffset += currentRowHeight;
-            currentColumnIndex = 0;
+            yOffset += currentRowHeight;
+            columnIndex = 0;
             currentRowHeight = 0;
           }
         }
@@ -458,7 +448,7 @@ class RenderWrapLayout extends RenderBox
     _calculateColumns(constraints.maxWidth);
 
     // Children locations
-    List<Rect> locations = List<Rect>();
+    List<Rect> locations = [];
 
     int nextWholeRowChildIndex = _getNextWholeRowChildIndex(0);
     int groupChildrenCount = nextWholeRowChildIndex;
@@ -472,15 +462,15 @@ class RenderWrapLayout extends RenderBox
     int groupColumn = 0;
     int groupColumnIndex = 0;
 
-    List<double> columnHeights = List<double>();
+    List<double> columnHeights = [];
 
     // final double actualColumnSpacing = ;
-    final double actualRowSpacing = _rowSpacing ?? 0;
+    final double actualRowSpacing = _rowSpacing;
 
     var child = firstChild;
     for (int i = 0; i < childCount; i++) {
-      WrapParentData childParentData = child.parentData as WrapParentData;
-      double actualColumnSpacing = groupColumn > 0 ? _columnSpacing ?? 0 : 0;
+      WrapParentData childParentData = child!.parentData as WrapParentData;
+      double actualColumnSpacing = groupColumn > 0 ? _columnSpacing : 0;
 
       if (i == nextWholeRowChildIndex) {
         if (columnHeights.length > 0) {
@@ -568,29 +558,25 @@ class RenderWrapLayout extends RenderBox
   /// Calculate columns actual width and count
   ///
   void _calculateColumns(double availableWidth) {
-    final double actualColumnSpacing = _columnSpacing ?? 0;
-    final double actualColumnMaxWidth = _columnMaxWidth ?? double.maxFinite;
-    final double actualColumnMinWidth = _columnMinWidth ?? 0;
     final int actualMaxColumnsCount = _maxColumnsCount ?? 100000;
 
     if (_columnsCount != null) {
-      _actualColumnCount = _columnsCount;
+      _actualColumnCount = _columnsCount!;
       double columnWidthCandidate =
-          ((availableWidth + actualColumnSpacing) / _actualColumnCount) -
-              actualColumnSpacing;
-      _actualColumnWidth =
-          max(0, min(columnWidthCandidate, actualColumnMaxWidth));
+          ((availableWidth + _columnSpacing) / _actualColumnCount) -
+              _columnSpacing;
+      _actualColumnWidth = max(0, min(columnWidthCandidate, _columnMaxWidth));
     } else if (_columnWidth == null) {
       int columnCountCandidate = 0;
-      if (_columnMinWidth != null) {
-        columnCountCandidate = ((availableWidth - actualColumnSpacing) /
-                (max(1, actualColumnMinWidth) + actualColumnSpacing))
+      if (_columnMinWidth != 0) {
+        columnCountCandidate = ((availableWidth - _columnSpacing) /
+                (max(1, _columnMinWidth) + _columnSpacing))
             .floor();
-      } else if (actualColumnMaxWidth < double.maxFinite) {
-        columnCountCandidate = ((availableWidth + actualColumnSpacing) /
-                (max(1, actualColumnMaxWidth) + actualColumnSpacing))
+      } else if (_columnMaxWidth < double.maxFinite) {
+        columnCountCandidate = ((availableWidth + _columnSpacing) /
+                (max(1, _columnMaxWidth) + _columnSpacing))
             .ceil();
-      } else if (_columnMinWidth == null && _columnMaxWidth == null) {
+      } else if (_columnMinWidth == 0 && _columnMaxWidth == double.maxFinite) {
         _actualColumnCount = -1;
         _actualColumnWidth = -1;
       }
@@ -599,20 +585,19 @@ class RenderWrapLayout extends RenderBox
           max(1, min(columnCountCandidate, actualMaxColumnsCount));
 
       double columnWidthCandidate =
-          ((availableWidth + actualColumnSpacing) / _actualColumnCount) -
-              actualColumnSpacing;
+          ((availableWidth + _columnSpacing) / _actualColumnCount) -
+              _columnSpacing;
 
-      _actualColumnWidth =
-          max(0, min(columnWidthCandidate, actualColumnMaxWidth));
+      _actualColumnWidth = max(0, min(columnWidthCandidate, _columnMaxWidth));
     } else {
       _actualColumnCount = max(
           1,
           min(
                   actualMaxColumnsCount,
-                  (availableWidth + actualColumnSpacing) /
-                      (_columnWidth + actualColumnSpacing))
+                  (availableWidth + _columnSpacing) /
+                      (_columnWidth ?? 0 + _columnSpacing))
               .floor());
-      _actualColumnWidth = _columnWidth;
+      _actualColumnWidth = _columnWidth ?? 0;
     }
   }
 
@@ -623,12 +608,12 @@ class RenderWrapLayout extends RenderBox
     var child = firstChild;
 
     for (int i = 0; i < startIndex; i++) {
-      WrapParentData childParentData = child.parentData as WrapParentData;
+      WrapParentData childParentData = child!.parentData as WrapParentData;
       child = childParentData.nextSibling;
     }
 
     for (int i = startIndex; i < childCount; i++) {
-      WrapParentData childParentData = child.parentData as WrapParentData;
+      WrapParentData childParentData = child!.parentData as WrapParentData;
 
       if (childParentData.fillRow) {
         return i;
@@ -667,7 +652,7 @@ class WrapLayoutPlacement extends ParentDataWidget<WrapParentData> {
   final bool fillRow;
 
   const WrapLayoutPlacement({
-    Key key,
+    Key? key,
     @required child,
     rowStart = false,
     rowEnd = false,
@@ -707,8 +692,8 @@ class WrapLayoutPlacement extends ParentDataWidget<WrapParentData> {
     }
 
     if (needsLayout) {
-      final AbstractNode targetParent = renderObject.parent;
-      if (targetParent is RenderObject) {
+      final AbstractNode? targetParent = renderObject.parent;
+      if (targetParent != null && targetParent is RenderObject) {
         targetParent.markNeedsLayout();
       }
     }
@@ -723,7 +708,7 @@ class WrapLayoutPlacement extends ParentDataWidget<WrapParentData> {
 ///
 extension WrapLayoutPlacementExtension on Widget {
   WrapLayoutPlacement withWrapPlacement(
-      {Key key,
+      {Key? key,
       rowStart = false,
       rowEnd = false,
       columnSpan = 1,

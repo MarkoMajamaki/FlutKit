@@ -5,7 +5,8 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "flutkit",
+            "name": "flutkit_demo",
+            "cwd": "flutkit_demo",
             "request": "launch",
             "type": "dart"
         }

@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 
 class LayoutScreen extends StatefulWidget {
   static String route = "layoutScreen";
-  LayoutScreen({Key key}) : super(key: key);
+  LayoutScreen({Key? key}) : super(key: key);
 
   @override
   _LayoutScreenState createState() => _LayoutScreenState();
@@ -112,13 +112,13 @@ class _LayoutScreenState extends State<LayoutScreen> {
     return SizedBox(
       width: double.infinity,
       height: height,
-      child: FlatButton(
-        color: color,
+      child: OutlinedButton(
+        /*color: color,
         textColor: Colors.white,
         disabledColor: Colors.grey,
         disabledTextColor: Colors.black,
         padding: EdgeInsets.all(8.0),
-        splashColor: Colors.blueAccent,
+        splashColor: Colors.blueAccent,*/
         onPressed: () {
           /*...*/
         },

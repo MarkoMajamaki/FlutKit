@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
       return SideBar(
         content: MaterialApp(
           navigatorKey: navigatorKey,
-          initialRoute: LayoutScreen.route,
+          initialRoute: MenuScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(

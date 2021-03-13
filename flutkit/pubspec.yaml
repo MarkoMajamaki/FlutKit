@@ -1,11 +1,11 @@
 name: flutkit
 description: Open source flutter widgets
-version: 0.0.1
+version: 0.0.2
 author: Marko Majamaki
 homepage: https://github.com/MarkoMajamaki/FlutKit
 
 environment:
-  sdk: ">=2.9.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:

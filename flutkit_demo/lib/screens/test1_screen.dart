@@ -17,13 +17,10 @@ class _Test1ScreenState extends State<Test1Screen> {
       appBar: AppBar(
         title: Text(
           'AppBar content',
-          style: TextStyle(
-            color: Colors.black
-          ),
+          style: TextStyle(color: Colors.black),
         ),
         iconTheme: IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
-
       ),
       body: Center(
         child: SizedBox(
@@ -32,18 +29,20 @@ class _Test1ScreenState extends State<Test1Screen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              RaisedButton(
+              ElevatedButton(
                 child: Text('navigate'),
                 onPressed: () {
                   setState(() {
                     // Navigator.pushNamed(context, Test2Screen.route);
-                    Navigator.of(context).pushNamed(Test2Screen.route, arguments: Test2ScreenArguments("Navigated from test1 page!"));
+                    Navigator.of(context).pushNamed(Test2Screen.route,
+                        arguments:
+                            Test2ScreenArguments("Navigated from test1 page!"));
                     // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Test2Screen()));
                     // widget.navigatorKey.currentState.push(MaterialPageRoute(builder: (context) => Test2Screen()));
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 child: Text('open menu'),
                 onPressed: () {
                   setState(() {
@@ -51,7 +50,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 child: Text('close menu'),
                 onPressed: () {
                   setState(() {
@@ -59,7 +58,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 child: Text('open submenu'),
                 onPressed: () {
                   setState(() {
@@ -67,7 +66,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   });
                 },
               ),
-              RaisedButton(
+              ElevatedButton(
                 child: Text('close submenu'),
                 onPressed: () {
                   setState(() {
