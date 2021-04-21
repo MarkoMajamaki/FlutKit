@@ -26,9 +26,12 @@ class SideBar extends StatefulWidget {
   final double verticalSeparatorThickness;
   final Color verticalSeparatorColor;
 
+  final SideBarController? controller;
+
   SideBar(
       {Key? key,
       required this.content,
+      this.controller,
       this.menu,
       this.submenu,
       this.modalBackgroundColor = SlideBarModalBackgroundColor.Black,
@@ -109,6 +112,18 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
       ..addListener(() {
         setState(() {});
       });
+
+    if (widget.controller != null) {
+      // Initialize values based on controller values
+      isMenuOpen = widget.controller!.isMenuOpen;
+      isSubMenuOpen = widget.controller!.isSubMenuOpen;
+
+      // Start listen controller changes
+      widget.controller!.addListener(() {
+        isMenuOpen = widget.controller!.isMenuOpen;
+        isSubMenuOpen = widget.controller!.isSubMenuOpen;
+      });
+    }
   }
 
   @override
@@ -128,7 +143,12 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   /// do slide and width calculations based on that value.
   ///
   set isMenuOpen(bool isOpen) {
-    if (widget.menu == null) {
+    // Update controller value
+    if (widget.controller != null && widget.controller!.isMenuOpen != isOpen) {
+      widget.controller!.isMenuOpen = isOpen;
+    }
+
+    if (widget.menu == null || _isMenuOpen == isOpen) {
       return;
     }
     _menuAnimationController.duration = Duration(milliseconds: widget.duration);
@@ -164,7 +184,13 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   /// do slide calculation based on that value.
   ///
   set isSubMenuOpen(bool isOpen) {
-    if (widget.submenu == null) {
+    // Update controller value
+    if (widget.controller != null &&
+        widget.controller!.isSubMenuOpen != isOpen) {
+      widget.controller!.isSubMenuOpen = isOpen;
+    }
+
+    if (widget.submenu == null || _isSubMenuOpen == isOpen) {
       return;
     }
 
@@ -667,5 +693,25 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+}
+
+///
+/// SideBar controller
+///
+class SideBarController extends ChangeNotifier {
+  bool _isSubMenuOpen = false;
+  bool _isMenuOpen = false;
+
+  bool get isSubMenuOpen => _isSubMenuOpen;
+  set isSubMenuOpen(bool isOpen) {
+    _isSubMenuOpen = isOpen;
+    notifyListeners();
+  }
+
+  bool get isMenuOpen => _isMenuOpen;
+  set isMenuOpen(bool isOpen) {
+    _isMenuOpen = isOpen;
+    notifyListeners();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutkit/flutkit.dart';
+import 'package:flutkit_demo/screens/controller_screen.dart';
 import 'package:flutkit_demo/screens/layout_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,7 @@ class _HomeState extends State<Home> {
       return SideBar(
         content: MaterialApp(
           navigatorKey: navigatorKey,
-          initialRoute: MenuScreen.route,
+          initialRoute: ControllerScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
@@ -46,7 +47,7 @@ class _HomeState extends State<Home> {
       return SideBar(
         content: MaterialApp(
           navigatorKey: navigatorKey,
-          initialRoute: Test1Screen.route,
+          initialRoute: ControllerScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
