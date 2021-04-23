@@ -5,3 +5,7 @@
 ## [0.0.2]
 
 * Support null safety
+
+## [0.0.3]
+
+* Add menu right location support to SideBar
