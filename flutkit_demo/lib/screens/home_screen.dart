@@ -24,49 +24,56 @@ class _HomeState extends State<Home> {
 
     if (useMobileLayout) {
       return SideBar(
-        content: MaterialApp(
+        body: MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
-          initialRoute: ControllerScreen.route,
+          initialRoute: Test1Screen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
+          debugShowCheckedModeBanner: false,
           initialRoute: MenuScreen.route,
           routes: getRoutes(),
         ),
         submenu: MaterialApp(
+          debugShowCheckedModeBanner: false,
           initialRoute: SubMenuScreen.route,
           routes: getRoutes(),
         ),
         subMenuWidth: 250,
         menuSpacing: 64,
-        contentBehavior: ContentBehavior.Move,
+        bodyBehavior: BodyBehavior.Move,
         verticalSeparatorThickness: 1,
         verticalSeparatorColor: Colors.black12,
       );
     } else {
       return SideBar(
-        content: MaterialApp(
+        body: MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
-          initialRoute: ControllerScreen.route,
+          initialRoute: Test1Screen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
+          debugShowCheckedModeBanner: false,
           initialRoute: MenuScreen.route,
           routes: getRoutes(),
         ),
         submenu: MaterialApp(
+          debugShowCheckedModeBanner: false,
           initialRoute: SubMenuScreen.route,
           routes: getRoutes(),
         ),
         menuWidth: 230,
         menuNarrowWidth: 60,
         subMenuWidth: 250,
-        contentBehavior: ContentBehavior.Resize,
+        bodyBehavior: BodyBehavior.Resize,
         menuOpenMode: MenuOpenMode.Default,
         menuCloseMode: MenuCloseMode.Narrow,
         subMenuOpenMode: SubMenuOpenMode.Floating,
         verticalSeparatorThickness: 1,
         verticalSeparatorColor: Colors.black12,
+        menuLocation: MenuLocation.Right,
       );
     }
   }

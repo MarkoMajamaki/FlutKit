@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 enum SlideBarModalBackgroundColor { Black, White, Transparent }
-enum ContentBehavior { Move, Resize }
+enum BodyBehavior { Move, Resize }
 enum MenuOpenMode { Default, Floating }
 enum MenuCloseMode { Default, Narrow }
 enum SubMenuOpenMode { Default, Floating }
+enum MenuLocation { Left, Right }
 
 class SideBar extends StatefulWidget {
-  final Widget content;
+  final Widget body;
   final Widget? menu;
   final Widget? submenu;
   final SlideBarModalBackgroundColor modalBackgroundColor;
   final double modalBackgroundOpacity;
-  final ContentBehavior contentBehavior;
+  final BodyBehavior bodyBehavior;
   final MenuOpenMode menuOpenMode;
   final MenuCloseMode menuCloseMode;
   final SubMenuOpenMode subMenuOpenMode;
@@ -25,18 +26,19 @@ class SideBar extends StatefulWidget {
   final double elevation;
   final double verticalSeparatorThickness;
   final Color verticalSeparatorColor;
+  final MenuLocation menuLocation;
 
   final SideBarController? controller;
 
   SideBar(
       {Key? key,
-      required this.content,
+      required this.body,
       this.controller,
       this.menu,
       this.submenu,
       this.modalBackgroundColor = SlideBarModalBackgroundColor.Black,
       this.modalBackgroundOpacity = 0.4,
-      this.contentBehavior = ContentBehavior.Move,
+      this.bodyBehavior = BodyBehavior.Move,
       this.menuOpenMode = MenuOpenMode.Default,
       this.menuCloseMode = MenuCloseMode.Default,
       this.subMenuOpenMode = SubMenuOpenMode.Floating,
@@ -47,7 +49,8 @@ class SideBar extends StatefulWidget {
       this.duration = 300,
       this.elevation = 12,
       this.verticalSeparatorThickness = 0,
-      this.verticalSeparatorColor = Colors.black54})
+      this.verticalSeparatorColor = Colors.black54,
+      this.menuLocation = MenuLocation.Left})
       : super(key: key);
 
   @override
@@ -75,7 +78,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   bool _isMenuOpen = false;
   bool _isSubMenuOpen = false;
 
-  late double _screenWidth;
+  late Size _availableSize;
 
   DragUpdateDetails? _panUpdateDetails;
   DragStartDetails? _panStartDetails;
@@ -90,11 +93,10 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   bool get isPanning => _panStartDetails != null;
 
   // Menu right side current actual x coordinate
-  double get actualMenuRight => getMenuOffset().dx + getActualMenuWidth();
+  double get actualMenuRight => getMenuX() + getActualMenuWidth();
 
   // Submenu right side current actual x coordinate
-  double get actualSubMenuRight =>
-      getSubMenuOffset().dx + getActualSubMenuWidth();
+  double get actualSubMenuRight => getSubMenuX() + getActualSubMenuWidth();
 
   ///
   /// Init controllers
@@ -130,6 +132,10 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   void dispose() {
     _menuAnimationController.dispose();
     _subMenuAnimationController.dispose();
+
+    if (widget.controller != null) {
+      widget.controller!.dispose();
+    }
     super.dispose();
   }
 
@@ -148,7 +154,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
       widget.controller!.isMenuOpen = isOpen;
     }
 
-    if (widget.menu == null || _isMenuOpen == isOpen) {
+    if (widget.menu == null || (_isMenuOpen == isOpen && isPanning == false)) {
       return;
     }
     _menuAnimationController.duration = Duration(milliseconds: widget.duration);
@@ -190,7 +196,8 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
       widget.controller!.isSubMenuOpen = isOpen;
     }
 
-    if (widget.submenu == null || _isSubMenuOpen == isOpen) {
+    if (widget.submenu == null ||
+        (_isSubMenuOpen == isOpen && isPanning == false)) {
       return;
     }
 
@@ -221,14 +228,15 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   ///
   @override
   Widget build(BuildContext context) {
-    Size deviceSize = MediaQuery.of(context).size;
-    _screenWidth = deviceSize.width;
+    _availableSize = MediaQuery.of(context).size;
 
     return Stack(
-      children: <Widget>[
-        Transform.translate(
-          offset: getContentOffset(),
-          child: SizedBox(width: getContentWidth(), child: widget.content),
+      children: [
+        Positioned(
+          width: getBodyWidth(),
+          height: _availableSize.height,
+          left: getBodyX(),
+          child: widget.body,
         ),
         Visibility(
           visible: getIsModalOpened(),
@@ -257,66 +265,68 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
             ),
           ),
         ),
-        GestureDetector(
-          onHorizontalDragUpdate: (details) {
-            if (getIsModalOpened()) {
-              setState(() {
-                _panUpdateDetails = details;
-              });
-            }
-          },
-          onHorizontalDragStart: (details) {
-            if (getIsModalOpened()) {
-              handlePanStart(details);
-            }
-          },
-          onHorizontalDragEnd: (details) {
-            if (getIsModalOpened()) {
-              handlePanEnd();
-            }
-          },
-          child: SizedBox(
-            width: getActualSubMenuWidth(),
-            child: Transform.translate(
-              offset: getSubMenuOffset(),
-              child: Material(
-                  elevation: getIsSubMenuModalOpened() ? widget.elevation : 0,
-                  child: Container(
-                      decoration: getVerticalLineDecorator(),
-                      child: widget.submenu)),
+        Positioned(
+          width: getActualSubMenuWidth(),
+          height: _availableSize.height,
+          left: getSubMenuX(),
+          child: GestureDetector(
+            onHorizontalDragUpdate: (details) {
+              if (getIsModalOpened()) {
+                setState(() {
+                  _panUpdateDetails = details;
+                });
+              }
+            },
+            onHorizontalDragStart: (details) {
+              if (getIsModalOpened()) {
+                handlePanStart(details);
+              }
+            },
+            onHorizontalDragEnd: (details) {
+              if (getIsModalOpened()) {
+                handlePanEnd();
+              }
+            },
+            child: Material(
+              elevation: getIsSubMenuModalOpened() ? widget.elevation : 0,
+              child: Container(
+                decoration: getVerticalLineDecorator(),
+                child: widget.submenu,
+              ),
             ),
           ),
         ),
-        GestureDetector(
-          onHorizontalDragUpdate: (DragUpdateDetails details) {
-            if (getIsModalOpened()) {
-              setState(() {
-                _panUpdateDetails = details;
-              });
-            }
-          },
-          onHorizontalDragStart: (details) {
-            if (getIsModalOpened()) {
-              handlePanStart(details);
-            }
-          },
-          onHorizontalDragEnd: (details) {
-            if (getIsModalOpened()) {
-              handlePanEnd();
-            }
-          },
-          child: SizedBox(
-            width: getActualMenuWidth(),
-            child: Transform.translate(
-              offset: getMenuOffset(),
-              child: Material(
-                  elevation: getIsMenuModalOpened() &&
-                          getIsSubMenuModalOpened() == false
+        Positioned(
+          width: getActualMenuWidth(),
+          height: _availableSize.height,
+          left: getMenuX(),
+          child: GestureDetector(
+            onHorizontalDragUpdate: (DragUpdateDetails details) {
+              if (getIsModalOpened()) {
+                setState(() {
+                  _panUpdateDetails = details;
+                });
+              }
+            },
+            onHorizontalDragStart: (details) {
+              if (getIsModalOpened()) {
+                handlePanStart(details);
+              }
+            },
+            onHorizontalDragEnd: (details) {
+              if (getIsModalOpened()) {
+                handlePanEnd();
+              }
+            },
+            child: Material(
+              elevation:
+                  getIsMenuModalOpened() && getIsSubMenuModalOpened() == false
                       ? widget.elevation
                       : 0,
-                  child: Container(
-                      decoration: getVerticalLineDecorator(),
-                      child: widget.menu)),
+              child: Container(
+                decoration: getVerticalLineDecorator(),
+                child: widget.menu,
+              ),
             ),
           ),
         ),
@@ -336,14 +346,23 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   ///
   bool getIsMenuModalOpened() {
     double menuRight = actualMenuRight;
+    bool isMenuOpening = false;
 
-    bool isMenuOpening =
-        (menuRight > 0 && widget.menuCloseMode == MenuCloseMode.Default) ||
-            (menuRight > widget.menuNarrowWidth &&
-                widget.menuCloseMode == MenuCloseMode.Narrow);
+    if (widget.menuLocation == MenuLocation.Left) {
+      isMenuOpening =
+          (widget.menuCloseMode == MenuCloseMode.Default && menuRight > 0) ||
+              (widget.menuCloseMode == MenuCloseMode.Narrow &&
+                  menuRight > widget.menuNarrowWidth);
+    } else {
+      double menuX = getMenuX();
+      isMenuOpening = (widget.menuCloseMode == MenuCloseMode.Default &&
+              menuX < _availableSize.width) ||
+          (widget.menuCloseMode == MenuCloseMode.Narrow &&
+              menuX < _availableSize.width - widget.menuNarrowWidth);
+    }
 
     return (_isMenuOpen || isMenuOpening) &&
-        (widget.contentBehavior == ContentBehavior.Move ||
+        (widget.bodyBehavior == BodyBehavior.Move ||
             widget.menuOpenMode == MenuOpenMode.Floating);
   }
 
@@ -351,12 +370,18 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   /// Check is submenu modally opened
   ///
   bool getIsSubMenuModalOpened() {
-    double menuRight = actualMenuRight;
-    double subMenuRight = actualSubMenuRight;
-    bool isSubMenuOpening = subMenuRight > menuRight;
+    bool isSubMenuOpening = false;
+
+    if (widget.menuLocation == MenuLocation.Left) {
+      double menuRight = actualMenuRight;
+      double subMenuRight = actualSubMenuRight;
+      isSubMenuOpening = subMenuRight > menuRight;
+    } else {
+      isSubMenuOpening = getSubMenuX() < _availableSize.width - getMenuX();
+    }
 
     return (_isSubMenuOpen || isSubMenuOpening) &&
-        (widget.contentBehavior == ContentBehavior.Move ||
+        (widget.bodyBehavior == BodyBehavior.Move ||
             widget.subMenuOpenMode == SubMenuOpenMode.Floating ||
             (widget.menu != null &&
                 widget.menuOpenMode == MenuOpenMode.Floating));
@@ -393,11 +418,20 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
     double menuStartToEndDistance;
     double menuStartToCurrentDistance;
 
-    // Default
-    if (widget.menuCloseMode == MenuCloseMode.Default) {
+    // Default when menu is on left
+    if (widget.menuCloseMode == MenuCloseMode.Default &&
+        widget.menuLocation == MenuLocation.Left) {
       double menuStart = -getActualMenuWidth();
       double menuEnd = 0;
-      double menuCurrentX = getMenuOffset().dx;
+      double menuCurrentX = getMenuX();
+      menuStartToEndDistance = (menuEnd - menuStart).abs();
+      menuStartToCurrentDistance = (menuStart - menuCurrentX).abs();
+      // Default when menu is on right
+    } else if (widget.menuCloseMode == MenuCloseMode.Default &&
+        widget.menuLocation == MenuLocation.Right) {
+      double menuStart = _availableSize.width;
+      double menuEnd = _availableSize.width - getActualMenuWidth();
+      double menuCurrentX = getMenuX();
       menuStartToEndDistance = (menuEnd - menuStart).abs();
       menuStartToCurrentDistance = (menuStart - menuCurrentX).abs();
     }
@@ -422,9 +456,18 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   ///
   double getSubMenuOpenPercent() {
     double menuRight = actualMenuRight;
-    double subMenuStart = menuRight - getActualSubMenuWidth();
-    double subMenuEnd = menuRight;
-    double subMenuCurrentX = getSubMenuOffset().dx;
+    double subMenuStart = 0;
+    double subMenuEnd = 0;
+
+    if (widget.menuLocation == MenuLocation.Left) {
+      subMenuStart = menuRight - getActualSubMenuWidth();
+      subMenuEnd = menuRight;
+    } else {
+      subMenuStart = getMenuX();
+      subMenuEnd = getMenuX() - getActualSubMenuWidth();
+    }
+
+    double subMenuCurrentX = getSubMenuX();
     double subMenuStartToEndDistance = (subMenuEnd - subMenuStart).abs();
     double subMenuStartToCurrentXDistance =
         (subMenuStart - subMenuCurrentX).abs();
@@ -437,89 +480,150 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   }
 
   ///
-  /// Get content current offset based on menu and submenu offset and width
+  /// Get body current offset based on menu and submenu offset and width
   ///
-  Offset getContentOffset() {
-    if (widget.subMenuOpenMode == SubMenuOpenMode.Default &&
-        widget.menuOpenMode == MenuOpenMode.Default &&
-        widget.submenu != null) {
-      return Offset(actualSubMenuRight, 0);
-    } else if (widget.menuOpenMode == MenuOpenMode.Default) {
-      return Offset(actualMenuRight, 0);
-    } else if (widget.menuCloseMode == MenuCloseMode.Narrow) {
-      return Offset(widget.menuNarrowWidth, 0);
+  double getBodyX() {
+    if (widget.menuLocation == MenuLocation.Left) {
+      if (widget.subMenuOpenMode == SubMenuOpenMode.Default &&
+          widget.menuOpenMode == MenuOpenMode.Default &&
+          widget.submenu != null) {
+        return actualSubMenuRight;
+      } else if (widget.menuOpenMode == MenuOpenMode.Default) {
+        return actualMenuRight;
+      } else if (widget.menuCloseMode == MenuCloseMode.Narrow) {
+        return widget.menuNarrowWidth;
+      } else {
+        return 0;
+      }
     } else {
-      return Offset(0, 0);
+      if (widget.subMenuOpenMode == SubMenuOpenMode.Default &&
+          widget.menuOpenMode == MenuOpenMode.Default &&
+          widget.submenu != null) {
+        return actualSubMenuRight - getActualSubMenuWidth() - getBodyWidth();
+      } else if (widget.menuOpenMode == MenuOpenMode.Default) {
+        return getMenuX() - getBodyWidth();
+      } else if (widget.menuCloseMode == MenuCloseMode.Narrow) {
+        return 0;
+      } else {
+        return 0;
+      }
     }
   }
 
   ///
-  /// Get content current width. If content behavior is on 'Resize' mode, then width changes.
+  /// Get body current width. If body behavior is on 'Resize' mode, then width changes.
   ///
-  double getContentWidth() {
-    double width = _screenWidth;
+  double getBodyWidth() {
+    double width = 0;
 
-    // If content is resizing
-    if (widget.contentBehavior == ContentBehavior.Resize) {
-      // Content width is based on menu and submenu modes
+    // If body is resizing
+    if (widget.bodyBehavior == BodyBehavior.Resize) {
+      // body width is based on menu and submenu modes
       if (widget.subMenuOpenMode == SubMenuOpenMode.Default &&
           widget.menuOpenMode == MenuOpenMode.Default) {
-        width = _screenWidth - max<double>(actualMenuRight, actualSubMenuRight);
+        if (widget.menuLocation == MenuLocation.Left) {
+          width = _availableSize.width -
+              max<double>(actualMenuRight, actualSubMenuRight);
+        } else {
+          width = _availableSize.width -
+              (_availableSize.width - max<double>(getMenuX(), getSubMenuX()));
+        }
       } else if (widget.menuOpenMode == MenuOpenMode.Default) {
-        width = _screenWidth - (getMenuOffset().dx + getActualMenuWidth());
+        if (widget.menuLocation == MenuLocation.Left) {
+          width = _availableSize.width - (getMenuX() + getActualMenuWidth());
+        } else {
+          width = _availableSize.width - (_availableSize.width - getMenuX());
+        }
       } else if (widget.menuCloseMode == MenuCloseMode.Narrow) {
-        width = _screenWidth - widget.menuNarrowWidth;
+        width = _availableSize.width - widget.menuNarrowWidth;
       } else {
-        width = double.infinity;
+        width = _availableSize.width;
       }
     }
-    // If content has same static width, and only offset changes.
+    // If body has same static width, and only offset changes.
     else if (widget.menu != null &&
         widget.menuCloseMode == MenuCloseMode.Narrow) {
-      width = _screenWidth - widget.menuNarrowWidth;
+      width = _availableSize.width - widget.menuNarrowWidth;
     }
     // Full width by default
     else {
-      width = double.infinity; // full width
+      width = _availableSize.width; // full width
     }
+
     return width;
   }
 
   ///
   /// Get menu current offset
   ///
-  Offset getMenuOffset() {
+  double getMenuX() {
     if (widget.menu == null) {
-      return Offset(0, 0);
+      return 0;
     }
 
     double menuActualWidth = getActualMenuWidth();
     double fixedPanX = 0;
-    if (_isSubMenuOpen == false &&
-        _panUpdateDetails != null &&
-        _panStartDetails != null &&
-        _panUpdateDetails!.globalPosition.dx < menuActualWidth) {
-      double fixedPanStart =
-          _panStartDetails!.globalPosition.dx > menuActualWidth
-              ? menuActualWidth
-              : _panStartDetails!.globalPosition.dx;
-      fixedPanX = _panUpdateDetails!.globalPosition.dx - fixedPanStart;
-    }
 
-    if (widget.menuCloseMode == MenuCloseMode.Narrow) {
-      // Menu offset is not changing if close mode is narrow (only width changes)
-      return Offset(0, 0);
-    } else if (_menuAnimation != null && _menuAnimation!.value.isNaN == false) {
-      double startX = -menuActualWidth;
-      double endX = 0;
-      return Offset(
-          min<double>(0,
-              (startX + (endX - startX) * _menuAnimation!.value) + fixedPanX),
-          0);
-    } else if (_isMenuOpen) {
-      return Offset(0, 0);
+    if (widget.menuLocation == MenuLocation.Left) {
+      if (_isSubMenuOpen == false &&
+          _panUpdateDetails != null &&
+          _panStartDetails != null &&
+          _panUpdateDetails!.globalPosition.dx < menuActualWidth) {
+        double fixedPanStart = _panStartDetails!.globalPosition.dx;
+        if (_panStartDetails!.globalPosition.dx > menuActualWidth) {
+          fixedPanStart = menuActualWidth;
+        }
+
+        fixedPanX = _panUpdateDetails!.globalPosition.dx - fixedPanStart;
+      }
+
+      if (widget.menuCloseMode == MenuCloseMode.Narrow) {
+        // Menu offset is not changing if close mode is narrow (only width changes)
+        return 0;
+      } else if (_menuAnimation != null &&
+          _menuAnimation!.value.isNaN == false) {
+        double startX = -menuActualWidth;
+        double endX = 0;
+        return min<double>(
+            0, (startX + (endX - startX) * _menuAnimation!.value) + fixedPanX);
+      } else if (_isMenuOpen) {
+        return 0;
+      } else {
+        return -menuActualWidth + fixedPanX;
+      }
     } else {
-      return Offset(-menuActualWidth + fixedPanX, 0);
+      if (_isSubMenuOpen == false &&
+          _panUpdateDetails != null &&
+          _panStartDetails != null &&
+          _panUpdateDetails!.globalPosition.dx >
+              _availableSize.width - menuActualWidth) {
+        // If pan starte inside menu
+        double fixedPanStart = 0;
+        if (_panStartDetails!.globalPosition.dx >
+            _availableSize.width - menuActualWidth) {
+          fixedPanStart = _panStartDetails!.globalPosition.dx -
+              (_availableSize.width - menuActualWidth);
+        }
+
+        fixedPanX = _panUpdateDetails!.globalPosition.dx -
+            (_availableSize.width - menuActualWidth) -
+            fixedPanStart;
+      }
+
+      if (widget.menuCloseMode == MenuCloseMode.Narrow) {
+        // Menu offset is not changing if close mode is narrow (only width changes)
+        return _availableSize.width - menuActualWidth;
+      } else if (_menuAnimation != null &&
+          _menuAnimation!.value.isNaN == false) {
+        double startX = _availableSize.width;
+        double endX = _availableSize.width - menuActualWidth;
+        return max<double>(_availableSize.width - menuActualWidth,
+            (startX + (endX - startX) * _menuAnimation!.value) + fixedPanX);
+      } else if (_isMenuOpen) {
+        return _availableSize.width - menuActualWidth;
+      } else {
+        return _availableSize.width + fixedPanX;
+      }
     }
   }
 
@@ -537,48 +641,67 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
       if (widget.menuWidth.isFinite) {
         endWidth = widget.menuWidth;
       } else if (widget.menuSpacing != 0) {
-        endWidth = _screenWidth - widget.menuSpacing;
+        endWidth = _availableSize.width - widget.menuSpacing;
       } else {
-        endWidth = _screenWidth;
+        endWidth = _availableSize.width;
       }
-      double menuAnimationProcess = _menuAnimation != null
-          ? _menuAnimation!.value
-          : _isMenuOpen
-              ? 1
-              : 0;
+      double menuAnimationProcess = 0;
+      if (_menuAnimation != null) {
+        menuAnimationProcess = _menuAnimation!.value;
+      } else if (_isMenuOpen) {
+        menuAnimationProcess = 1;
+      }
 
+      // Change menu width to narrow if panned
       double fixedPanX = 0;
       if (_isSubMenuOpen == false &&
           _panUpdateDetails != null &&
-          _panStartDetails != null &&
-          (_panUpdateDetails!.globalPosition.dx < widget.menuWidth ||
-              _panStartDetails!.globalPosition.dx < widget.menuWidth &&
-                  _panUpdateDetails!.globalPosition.dx > widget.menuWidth)) {
-        double fixedPanStart =
-            _panStartDetails!.globalPosition.dx > widget.menuWidth
-                ? widget.menuWidth
-                : _panStartDetails!.globalPosition.dx;
-        fixedPanX = _panUpdateDetails!.globalPosition.dx - fixedPanStart;
+          _panStartDetails != null) {
+        // Fix pan if pan is started from inside menu
+        double fixedPanStart = 0;
+        double globalX = _panUpdateDetails!.globalPosition.dx;
+        double startX = _panStartDetails!.globalPosition.dx;
+
+        if (widget.menuLocation == MenuLocation.Left &&
+            globalX < widget.menuWidth) {
+          if (startX > widget.menuWidth) {
+            fixedPanStart = widget.menuWidth;
+          } else {
+            fixedPanStart = startX;
+          }
+          fixedPanX = globalX - fixedPanStart;
+        } else if (widget.menuLocation == MenuLocation.Right &&
+            globalX > _availableSize.width - widget.menuWidth) {
+          double fixedPanStart = 0;
+          if (startX > _availableSize.width - widget.menuWidth) {
+            fixedPanStart = startX - (_availableSize.width - widget.menuWidth);
+          }
+
+          fixedPanX = globalX -
+              (_availableSize.width - widget.menuWidth) -
+              fixedPanStart;
+          fixedPanX = -fixedPanX;
+        }
       }
+
       double menuMaxWidth = widget.menuWidth.isInfinite
-          ? _screenWidth - widget.menuSpacing
+          ? _availableSize.width - widget.menuSpacing
           : widget.menuWidth;
-      return max<double>(
-          widget.menuNarrowWidth,
-          min<double>(
-              menuMaxWidth,
-              startWidth +
-                  (endWidth - startWidth) * menuAnimationProcess +
-                  fixedPanX));
+      double width = startWidth +
+          (endWidth - startWidth) * menuAnimationProcess +
+          fixedPanX;
+      width = min<double>(menuMaxWidth, width);
+      width = max<double>(widget.menuNarrowWidth, width);
+      return width;
     }
     // If menu close mode is 'Default' then menu width is not changing
     else {
       if (widget.menuWidth.isFinite) {
         return widget.menuWidth;
       } else if (widget.menuSpacing != 0) {
-        return _screenWidth - widget.menuSpacing;
+        return _availableSize.width - widget.menuSpacing;
       } else {
-        return _screenWidth;
+        return _availableSize.width;
       }
     }
   }
@@ -588,43 +711,91 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   ///
   double getMenuMaxWidth() {
     return widget.menuWidth.isInfinite
-        ? _screenWidth - widget.menuSpacing
+        ? _availableSize.width - widget.menuSpacing
         : widget.menuWidth;
   }
 
   ///
   /// Get submenu offset
   ///
-  Offset getSubMenuOffset() {
+  double getSubMenuX() {
     double menuRight = actualMenuRight;
-    double subMenuRight = menuRight + getActualSubMenuWidth();
+    double menuWidth = getActualMenuWidth();
+    double subMenuWidth = getActualSubMenuWidth();
+    double subMenuRight = 0;
 
-    double fixedPanX = 0;
-    if (_panUpdateDetails != null &&
-        _panStartDetails != null &&
-        _panUpdateDetails!.globalPosition.dx < subMenuRight) {
-      double fixedPanStart = _panStartDetails!.globalPosition.dx > subMenuRight
-          ? subMenuRight
-          : _panStartDetails!.globalPosition.dx;
-      fixedPanX = _panUpdateDetails!.globalPosition.dx - fixedPanStart;
+    if (widget.menuLocation == MenuLocation.Left) {
+      subMenuRight = menuRight + subMenuWidth;
+    } else {
+      subMenuRight = menuRight - menuWidth;
     }
 
-    if (_subMenuAnimation != null && _subMenuAnimation!.value.isNaN == false) {
-      double startX = menuRight - getActualSubMenuWidth();
-      double endX = menuRight;
-      return Offset(
-          min<double>(
-              endX,
-              max<double>(
-                  startX,
-                  startX +
-                      (endX - startX) * _subMenuAnimation!.value +
-                      fixedPanX)),
-          0);
-    } else if (_isSubMenuOpen) {
-      return Offset(menuRight, 0);
-    } else {
-      return Offset(menuRight - getActualSubMenuWidth(), 0);
+    double fixedPanX = 0;
+
+    // Menu on left
+    if (widget.menuLocation == MenuLocation.Left) {
+      if (_subMenuAnimation != null &&
+          _subMenuAnimation!.value.isNaN == false) {
+        if (_panUpdateDetails != null &&
+            _panStartDetails != null &&
+            _panUpdateDetails!.globalPosition.dx < subMenuRight) {
+          double fixedPanStart = 0;
+          if (_panStartDetails!.globalPosition.dx < subMenuRight) {
+            fixedPanStart = subMenuRight - _panUpdateDetails!.globalPosition.dx;
+          }
+          fixedPanX = subMenuRight -
+              _panUpdateDetails!.globalPosition.dx -
+              fixedPanStart;
+        }
+
+        double startX = menuRight - subMenuWidth;
+        double endX = menuRight;
+
+        double offsetX =
+            startX + (endX - startX) * _subMenuAnimation!.value - fixedPanX;
+        offsetX = max<double>(startX, offsetX);
+        offsetX = min<double>(endX, offsetX);
+        return offsetX;
+      } else if (_isSubMenuOpen) {
+        return menuRight;
+      } else {
+        return menuRight - subMenuWidth;
+      }
+    }
+    // Menu on right
+    else {
+      double menuX = getMenuX();
+
+      if (_panUpdateDetails != null &&
+          _panStartDetails != null &&
+          _panUpdateDetails!.globalPosition.dx > subMenuRight - subMenuWidth) {
+        // If pan started inside submenu
+        double fixedPanStart = 0;
+        if (_panStartDetails!.globalPosition.dx >
+            menuRight - menuWidth - subMenuWidth) {
+          fixedPanStart = _panStartDetails!.globalPosition.dx -
+              (menuRight - menuWidth - subMenuWidth);
+        }
+
+        fixedPanX = _panUpdateDetails!.globalPosition.dx -
+            (menuRight - menuWidth - subMenuWidth) -
+            fixedPanStart;
+      }
+
+      if (_subMenuAnimation != null &&
+          _subMenuAnimation!.value.isNaN == false) {
+        double startX = menuX;
+        double endX = startX - subMenuWidth;
+        double offsetX =
+            startX + (endX - startX) * _subMenuAnimation!.value + fixedPanX;
+        offsetX = max<double>(endX, offsetX);
+        offsetX = min<double>(startX, offsetX);
+        return offsetX;
+      } else if (_isSubMenuOpen) {
+        return menuX - subMenuWidth;
+      } else {
+        return menuX;
+      }
     }
   }
 
@@ -635,7 +806,9 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
     if (widget.submenu == null) {
       return 0;
     } else {
-      return widget.subMenuWidth.isFinite ? widget.subMenuWidth : _screenWidth;
+      return widget.subMenuWidth.isFinite
+          ? widget.subMenuWidth
+          : _availableSize.width;
     }
   }
 
@@ -682,17 +855,30 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   /// Make vertical line to menu and submenu right side
   ///
   BoxDecoration getVerticalLineDecorator() {
-    return BoxDecoration(
-      border: Border(
-        right: BorderSide(
-          width: widget.verticalSeparatorColor == Colors.transparent ||
-                  widget.verticalSeparatorThickness == 0
-              ? 0
-              : widget.verticalSeparatorThickness,
-          color: widget.verticalSeparatorColor,
-        ),
-      ),
+    double actualBorderWidth = widget.verticalSeparatorThickness;
+    if (widget.verticalSeparatorColor == Colors.transparent ||
+        widget.verticalSeparatorThickness == 0) {
+      actualBorderWidth = 0;
+    }
+
+    BorderSide borderSide = BorderSide(
+      width: actualBorderWidth,
+      color: widget.verticalSeparatorColor,
     );
+
+    if (widget.menuLocation == MenuLocation.Left) {
+      return BoxDecoration(
+        border: Border(
+          right: borderSide,
+        ),
+      );
+    } else {
+      return BoxDecoration(
+        border: Border(
+          left: borderSide,
+        ),
+      );
+    }
   }
 }
 

@@ -25,7 +25,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
         ),
         menuWidth: 300,
         subMenuWidth: 300,
-        content: Container(
+        body: Container(
           child: Center(
             child: ElevatedButton(
               child: Text("Test"),
