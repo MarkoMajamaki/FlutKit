@@ -29,6 +29,8 @@ class SideBar extends StatefulWidget {
   final MenuLocation menuLocation;
 
   final SideBarController? controller;
+  final Function(bool)? isMenuOpenChanged;
+  final Function(bool)? isSubMenuOpenChanged;
 
   SideBar(
       {Key? key,
@@ -50,7 +52,9 @@ class SideBar extends StatefulWidget {
       this.elevation = 12,
       this.verticalSeparatorThickness = 0,
       this.verticalSeparatorColor = Colors.black54,
-      this.menuLocation = MenuLocation.Left})
+      this.menuLocation = MenuLocation.Left,
+      this.isMenuOpenChanged,
+      this.isSubMenuOpenChanged})
       : super(key: key);
 
   @override
@@ -154,6 +158,10 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
       widget.controller!.isMenuOpen = isOpen;
     }
 
+    if (widget.isMenuOpenChanged != null) {
+      widget.isMenuOpenChanged!(isOpen);
+    }
+
     if (widget.menu == null || (_isMenuOpen == isOpen && isPanning == false)) {
       return;
     }
@@ -194,6 +202,10 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
     if (widget.controller != null &&
         widget.controller!.isSubMenuOpen != isOpen) {
       widget.controller!.isSubMenuOpen = isOpen;
+    }
+
+    if (widget.isSubMenuOpenChanged != null) {
+      widget.isSubMenuOpenChanged!(isOpen);
     }
 
     if (widget.submenu == null ||

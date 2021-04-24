@@ -13,3 +13,7 @@
 ## [0.0.4]
 
 * Fix SideBar constraints
+
+## [0.0.5]
+
+* Add open/close events to SideBar
