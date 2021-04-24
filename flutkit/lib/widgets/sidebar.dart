@@ -231,6 +231,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
     _availableSize = MediaQuery.of(context).size;
 
     return Stack(
+      fit: StackFit.expand,
       children: [
         Positioned(
           width: getBodyWidth(),

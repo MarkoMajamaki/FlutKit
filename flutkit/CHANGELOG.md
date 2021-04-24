@@ -9,3 +9,7 @@
 ## [0.0.3]
 
 * Add menu right location support to SideBar
+
+## [0.0.4]
+
+* Fix SideBar constraints
