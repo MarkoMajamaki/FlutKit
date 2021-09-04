@@ -73,7 +73,7 @@ class _HomeState extends State<Home> {
         subMenuOpenMode: SubMenuOpenMode.Floating,
         verticalSeparatorThickness: 1,
         verticalSeparatorColor: Colors.black12,
-        menuLocation: MenuLocation.Right,
+        menuLocation: MenuLocation.Left,
       );
     }
   }

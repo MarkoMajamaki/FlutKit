@@ -240,110 +240,114 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   ///
   @override
   Widget build(BuildContext context) {
-    _availableSize = MediaQuery.of(context).size;
+    return LayoutBuilder(
+      builder: (BuildContext ctx, BoxConstraints constraints) {
+        _availableSize = Size(constraints.maxWidth, constraints.maxHeight);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned(
-          width: getBodyWidth(),
-          height: _availableSize.height,
-          left: getBodyX(),
-          child: widget.body,
-        ),
-        Visibility(
-          visible: getIsModalOpened(),
-          child: GestureDetector(
-            onHorizontalDragUpdate: (details) {
-              setState(() {
-                _panUpdateDetails = details;
-              });
-            },
-            onHorizontalDragStart: (details) {
-              handlePanStart(details);
-            },
-            onHorizontalDragEnd: (details) {
-              handlePanEnd();
-            },
-            onTap: () {
-              // Close submenu first
-              if (_isSubMenuOpen) {
-                isSubMenuOpen = false;
-              } else if (_isMenuOpen) {
-                isMenuOpen = false;
-              }
-            },
-            child: Container(
-              color: getModalBackgroundColor(widget.modalBackgroundColor),
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              width: getBodyWidth(),
+              height: _availableSize.height,
+              left: getBodyX(),
+              child: widget.body,
             ),
-          ),
-        ),
-        Positioned(
-          width: getActualSubMenuWidth(),
-          height: _availableSize.height,
-          left: getSubMenuX(),
-          child: GestureDetector(
-            onHorizontalDragUpdate: (details) {
-              if (getIsModalOpened()) {
-                setState(() {
-                  _panUpdateDetails = details;
-                });
-              }
-            },
-            onHorizontalDragStart: (details) {
-              if (getIsModalOpened()) {
-                handlePanStart(details);
-              }
-            },
-            onHorizontalDragEnd: (details) {
-              if (getIsModalOpened()) {
-                handlePanEnd();
-              }
-            },
-            child: Material(
-              elevation: getIsSubMenuModalOpened() ? widget.elevation : 0,
-              child: Container(
-                decoration: getVerticalLineDecorator(),
-                child: widget.submenu,
+            Visibility(
+              visible: getIsModalOpened(),
+              child: GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    _panUpdateDetails = details;
+                  });
+                },
+                onHorizontalDragStart: (details) {
+                  handlePanStart(details);
+                },
+                onHorizontalDragEnd: (details) {
+                  handlePanEnd();
+                },
+                onTap: () {
+                  // Close submenu first
+                  if (_isSubMenuOpen) {
+                    isSubMenuOpen = false;
+                  } else if (_isMenuOpen) {
+                    isMenuOpen = false;
+                  }
+                },
+                child: Container(
+                  color: getModalBackgroundColor(widget.modalBackgroundColor),
+                ),
               ),
             ),
-          ),
-        ),
-        Positioned(
-          width: getActualMenuWidth(),
-          height: _availableSize.height,
-          left: getMenuX(),
-          child: GestureDetector(
-            onHorizontalDragUpdate: (DragUpdateDetails details) {
-              if (getIsModalOpened()) {
-                setState(() {
-                  _panUpdateDetails = details;
-                });
-              }
-            },
-            onHorizontalDragStart: (details) {
-              if (getIsModalOpened()) {
-                handlePanStart(details);
-              }
-            },
-            onHorizontalDragEnd: (details) {
-              if (getIsModalOpened()) {
-                handlePanEnd();
-              }
-            },
-            child: Material(
-              elevation:
-                  getIsMenuModalOpened() && getIsSubMenuModalOpened() == false
+            Positioned(
+              width: getActualSubMenuWidth(),
+              height: _availableSize.height,
+              left: getSubMenuX(),
+              child: GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  if (getIsModalOpened()) {
+                    setState(() {
+                      _panUpdateDetails = details;
+                    });
+                  }
+                },
+                onHorizontalDragStart: (details) {
+                  if (getIsModalOpened()) {
+                    handlePanStart(details);
+                  }
+                },
+                onHorizontalDragEnd: (details) {
+                  if (getIsModalOpened()) {
+                    handlePanEnd();
+                  }
+                },
+                child: Material(
+                  elevation: getIsSubMenuModalOpened() ? widget.elevation : 0,
+                  child: Container(
+                    decoration: getVerticalLineDecorator(),
+                    child: widget.submenu,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              width: getActualMenuWidth(),
+              height: _availableSize.height,
+              left: getMenuX(),
+              child: GestureDetector(
+                onHorizontalDragUpdate: (DragUpdateDetails details) {
+                  if (getIsModalOpened()) {
+                    setState(() {
+                      _panUpdateDetails = details;
+                    });
+                  }
+                },
+                onHorizontalDragStart: (details) {
+                  if (getIsModalOpened()) {
+                    handlePanStart(details);
+                  }
+                },
+                onHorizontalDragEnd: (details) {
+                  if (getIsModalOpened()) {
+                    handlePanEnd();
+                  }
+                },
+                child: Material(
+                  elevation: getIsMenuModalOpened() &&
+                          getIsSubMenuModalOpened() == false
                       ? widget.elevation
                       : 0,
-              child: Container(
-                decoration: getVerticalLineDecorator(),
-                child: widget.menu,
+                  child: Container(
+                    decoration: getVerticalLineDecorator(),
+                    child: widget.menu,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 

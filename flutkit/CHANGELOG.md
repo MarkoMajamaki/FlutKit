@@ -17,3 +17,7 @@
 ## [0.0.5]
 
 * Add open/close events to SideBar
+
+## [0.0.6]
+
+* Fix SideBar constraints when multiple SideBars are used inside each other
