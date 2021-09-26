@@ -82,7 +82,7 @@ class _SideBarState extends State<SideBar> with TickerProviderStateMixin {
   bool _isMenuOpen = false;
   bool _isSubMenuOpen = false;
 
-  late Size _availableSize;
+  Size _availableSize = Size(0, 0);
 
   DragUpdateDetails? _panUpdateDetails;
   DragStartDetails? _panStartDetails;

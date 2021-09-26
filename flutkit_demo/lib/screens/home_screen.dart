@@ -1,6 +1,7 @@
 import 'package:flutkit/flutkit.dart';
 import 'package:flutkit_demo/screens/controller_screen.dart';
 import 'package:flutkit_demo/screens/layout_screen.dart';
+import 'package:flutkit_demo/screens/sliver_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../routes.dart';
@@ -27,7 +28,7 @@ class _HomeState extends State<Home> {
         body: MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
-          initialRoute: Test1Screen.route,
+          initialRoute: SliverScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(
@@ -51,7 +52,7 @@ class _HomeState extends State<Home> {
         body: MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
-          initialRoute: Test1Screen.route,
+          initialRoute: SliverScreen.route,
           routes: getRoutes(),
         ),
         menu: MaterialApp(

@@ -1,5 +1,6 @@
 import 'package:flutkit_demo/screens/controller_screen.dart';
 import 'package:flutkit_demo/screens/layout_screen.dart';
+import 'package:flutkit_demo/screens/sliver_screen.dart';
 
 import 'screens/menu_screen.dart';
 import 'screens/submenu_screen.dart';
@@ -14,5 +15,6 @@ getRoutes() {
     Test2Screen.route: (context) => Test2Screen(),
     LayoutScreen.route: (context) => LayoutScreen(),
     ControllerScreen.route: (context) => ControllerScreen(),
+    SliverScreen.route: (context) => SliverScreen(),
   };
 }
