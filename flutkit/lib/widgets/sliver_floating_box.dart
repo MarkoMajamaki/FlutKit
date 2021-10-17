@@ -7,20 +7,28 @@ import 'package:flutter/rendering.dart';
 /// Sliver to add left floating sidebar to web page
 ///
 class SliverFloatingBox extends SingleChildRenderObjectWidget {
+  final double? pinnedToolBarHeight;
+
   SliverFloatingBox({
     Widget? child,
+    double? pinnedToolBarHeight,
     Key? key,
-  }) : super(child: child, key: key);
+  })  : pinnedToolBarHeight = pinnedToolBarHeight,
+        super(child: child, key: key);
 
   @override
   RenderSliverFloatingBox createRenderObject(BuildContext context) =>
-      RenderSliverFloatingBox();
+      RenderSliverFloatingBox(pinnedToolBarHeight: pinnedToolBarHeight);
 }
 
 class RenderSliverFloatingBox extends RenderSliverSingleBoxAdapter {
+  final double? pinnedToolBarHeight;
+
   RenderSliverFloatingBox({
     RenderBox? child,
-  }) : super(child: child);
+    double? pinnedToolBarHeight,
+  })  : pinnedToolBarHeight = pinnedToolBarHeight,
+        super(child: child);
 
   @override
   void performLayout() {
@@ -29,9 +37,11 @@ class RenderSliverFloatingBox extends RenderSliverSingleBoxAdapter {
       return;
     }
 
+    double actualOverlap = pinnedToolBarHeight ?? constraints.overlap;
+
     child!.layout(
         this.constraints.asBoxConstraints(
-            maxExtent: constraints.remainingPaintExtent - constraints.overlap),
+            maxExtent: constraints.viewportMainAxisExtent - actualOverlap),
         parentUsesSize: true);
 
     final double childExtent;
@@ -45,12 +55,13 @@ class RenderSliverFloatingBox extends RenderSliverSingleBoxAdapter {
     }
 
     final double effectiveRemainingPaintExtent =
-        max(0, constraints.remainingPaintExtent - constraints.overlap);
+        max(0, constraints.remainingPaintExtent - actualOverlap);
 
     geometry = SliverGeometry(
       scrollExtent: 0,
       paintOrigin: constraints.overlap,
-      paintExtent: min(childExtent, effectiveRemainingPaintExtent),
+      paintExtent:
+          min(childExtent, effectiveRemainingPaintExtent) - constraints.overlap,
       layoutExtent: 0,
       maxPaintExtent: childExtent,
       maxScrollObstructionExtent: childExtent,

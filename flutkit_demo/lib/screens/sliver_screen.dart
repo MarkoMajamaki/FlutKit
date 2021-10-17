@@ -12,6 +12,8 @@ class SliverScreen extends StatefulWidget {
 
 class _SliverScreenState extends State<SliverScreen> {
   double _availableWidth = 0;
+  double _pinnedToolbarHeight = 50;
+  final dataKey = new GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -23,19 +25,21 @@ class _SliverScreenState extends State<SliverScreen> {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                floating: true,
                 pinned: true,
-                toolbarHeight: 50,
+                floating: false,
+                toolbarHeight: _pinnedToolbarHeight,
                 expandedHeight: 250,
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text('SliverAppBar', textScaleFactor: 1),
                 ),
               ),
               SliverFloatingBox(
+                pinnedToolBarHeight: _pinnedToolbarHeight,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     return Stack(
                       children: [
+                        Placeholder(),
                         Positioned(
                           width: 300,
                           height: constraints.maxHeight,
@@ -65,18 +69,35 @@ class _SliverScreenState extends State<SliverScreen> {
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 300),
-                      child: ListTile(
-                        onTap: () {},
-                        title: Text('Item ${index + 1}'),
-                      ),
-                    );
+                    if (index == 40) {
+                      return Padding(
+                        key: dataKey,
+                        padding: const EdgeInsets.symmetric(horizontal: 300),
+                        child: ListTile(
+                          onTap: () {},
+                          title: Text('Item scroll ${index + 1}'),
+                        ),
+                      );
+                    } else {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 300),
+                        child: ListTile(
+                          onTap: () {},
+                          title: Text('Item ${index + 1}'),
+                        ),
+                      );
+                    }
                   },
                   childCount: 50,
                 ),
               ),
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Scrollable.ensureVisible(dataKey.currentContext!);
+            },
+            child: Text("scroll"),
           ),
         );
       },

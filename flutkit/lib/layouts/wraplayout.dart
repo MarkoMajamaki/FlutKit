@@ -109,6 +109,7 @@ class RenderWrapLayout extends RenderBox
   double? get columnWidth => _columnWidth;
   double? _columnWidth;
   set columnWidth(double? value) {
+    if (_columnWidth == value) return;
     _columnWidth = value;
     markNeedsLayout();
   }
@@ -116,6 +117,7 @@ class RenderWrapLayout extends RenderBox
   double get columnMaxWidth => _columnMaxWidth;
   double _columnMaxWidth = double.maxFinite;
   set columnMaxWidth(double value) {
+    if (_columnMaxWidth == value) return;
     _columnMaxWidth = value;
     markNeedsLayout();
   }
@@ -123,6 +125,7 @@ class RenderWrapLayout extends RenderBox
   double get columnMinWidth => _columnMinWidth;
   double _columnMinWidth = 0;
   set columnMinWidth(double value) {
+    if (_columnMinWidth == value) return;
     _columnMinWidth = value;
     markNeedsLayout();
   }
@@ -130,6 +133,7 @@ class RenderWrapLayout extends RenderBox
   int? get columnsCount => _columnsCount;
   int? _columnsCount;
   set columnsCount(int? value) {
+    if (_columnsCount == value) return;
     _columnsCount = value;
     markNeedsLayout();
   }
@@ -137,6 +141,7 @@ class RenderWrapLayout extends RenderBox
   int? get maxColumnsCount => _maxColumnsCount;
   int? _maxColumnsCount;
   set maxColumnsCount(int? value) {
+    if (_maxColumnsCount == value) return;
     _maxColumnsCount = value;
     markNeedsLayout();
   }
@@ -144,6 +149,7 @@ class RenderWrapLayout extends RenderBox
   double get columnSpacing => _columnSpacing;
   double _columnSpacing = 0;
   set columnSpacing(double value) {
+    if (_columnSpacing == value) return;
     _columnSpacing = value;
     markNeedsLayout();
   }
@@ -151,6 +157,7 @@ class RenderWrapLayout extends RenderBox
   double get rowSpacing => _rowSpacing;
   double _rowSpacing = 0;
   set rowSpacing(double value) {
+    if (_rowSpacing == value) return;
     _rowSpacing = value;
     markNeedsLayout();
   }
@@ -158,6 +165,7 @@ class RenderWrapLayout extends RenderBox
   WrapOrientation get orientation => _orientation;
   WrapOrientation _orientation = WrapOrientation.Horizontal;
   set orientation(WrapOrientation value) {
+    if (_orientation == value) return;
     _orientation = value;
     markNeedsLayout();
   }
@@ -239,6 +247,12 @@ class RenderWrapLayout extends RenderBox
     }
 
     this.size = Size(width, height);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    // TODO
+    return super.computeDryLayout(constraints);
   }
 
   ///
