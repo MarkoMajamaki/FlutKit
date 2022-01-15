@@ -188,7 +188,7 @@ class RenderWrapLayout extends RenderBox
 
   @override
   double computeMinIntrinsicWidth(double height) {
-    List<Rect> childrenLocations = _layoutChildren();
+    List<Rect> childrenLocations = _layoutChildren(double.infinity, height);
     double width = 0;
     for (int i = 0; i < childrenLocations.length; i++) {
       width = max(width, childrenLocations.elementAt(i).right);
@@ -199,7 +199,7 @@ class RenderWrapLayout extends RenderBox
 
   @override
   double computeMaxIntrinsicWidth(double height) {
-    List<Rect> childrenLocations = _layoutChildren();
+    List<Rect> childrenLocations = _layoutChildren(double.infinity, height);
     double width = 0;
     for (int i = 0; i < childrenLocations.length; i++) {
       width = max(width, childrenLocations.elementAt(i).right);
@@ -209,7 +209,7 @@ class RenderWrapLayout extends RenderBox
 
   @override
   double computeMinIntrinsicHeight(double width) {
-    List<Rect> childrenLocations = _layoutChildren();
+    List<Rect> childrenLocations = _layoutChildren(width, double.infinity);
     double height = 0;
     for (int i = 0; i < childrenLocations.length; i++) {
       height = max(height, childrenLocations.elementAt(i).bottom);
@@ -219,7 +219,7 @@ class RenderWrapLayout extends RenderBox
 
   @override
   double computeMaxIntrinsicHeight(double width) {
-    List<Rect> childrenLocations = _layoutChildren();
+    List<Rect> childrenLocations = _layoutChildren(width, double.infinity);
     double height = 0;
     for (int i = 0; i < childrenLocations.length; i++) {
       height = max(height, childrenLocations.elementAt(i).bottom);
@@ -237,22 +237,36 @@ class RenderWrapLayout extends RenderBox
   ///
   @override
   void performLayout() {
-    List<Rect> childrenLocations = _layoutChildren();
+    List<Rect> childrenLocations = _layoutChildren(
+      constraints.maxWidth,
+      constraints.maxHeight,
+    );
 
     double height = 0;
     double width = 0;
+
+    var child = firstChild;
+
     for (int i = 0; i < childrenLocations.length; i++) {
       height = max(height, childrenLocations.elementAt(i).bottom);
       width = max(width, childrenLocations.elementAt(i).right);
+
+      // Do actual layout
+      child!.layout(
+        BoxConstraints(
+          maxWidth: childrenLocations.elementAt(i).width,
+          maxHeight: childrenLocations.elementAt(i).height,
+          minWidth: 0,
+          minHeight: 0,
+        ),
+        parentUsesSize: true,
+      );
+
+      WrapParentData childParentData = child.parentData as WrapParentData;
+      child = childParentData.nextSibling;
     }
 
     this.size = Size(width, height);
-  }
-
-  @override
-  Size computeDryLayout(BoxConstraints constraints) {
-    // TODO
-    return super.computeDryLayout(constraints);
   }
 
   ///
@@ -266,11 +280,11 @@ class RenderWrapLayout extends RenderBox
   ///
   /// Layout children
   ///
-  List<Rect> _layoutChildren() {
+  List<Rect> _layoutChildren(double maxWidth, double maxHeight) {
     if (_orientation == WrapOrientation.Horizontal) {
-      return _layoutChildrenHorizontally();
+      return _layoutChildrenHorizontally(maxWidth);
     } else {
-      return _layoutChildrenVertical();
+      return _layoutChildrenVertical(maxWidth);
     }
   }
 
@@ -278,8 +292,8 @@ class RenderWrapLayout extends RenderBox
   /// Layout and calculate children locations when wrapped horizontally. Return
   /// children locations
   ///
-  List<Rect> _layoutChildrenHorizontally() {
-    _calculateColumns(constraints.maxWidth);
+  List<Rect> _layoutChildrenHorizontally(double maxWidth) {
+    _calculateColumns(maxWidth);
 
     // Children locations
     List<Rect> locations = [];
@@ -300,8 +314,17 @@ class RenderWrapLayout extends RenderBox
       while (child != null) {
         WrapParentData childParentData = child.parentData as WrapParentData;
 
-        child.layout(constraints, parentUsesSize: true);
-        final bool newRow = xOffset + child.size.width > constraints.maxWidth;
+        // Do dry layout measurements
+        Size childSize = child.getDryLayout(
+          BoxConstraints(
+            maxWidth: maxWidth,
+            maxHeight: double.infinity,
+            minWidth: 0,
+            minHeight: 0,
+          ),
+        );
+
+        final bool newRow = xOffset + childSize.width > maxWidth;
 
         if (newRow || childParentData.fillRow || childParentData.rowStart) {
           yOffset += currentRowHeight;
@@ -311,25 +334,25 @@ class RenderWrapLayout extends RenderBox
 
         Rect location;
         if (childParentData.fillRow) {
-          location = Rect.fromLTWH(
-              xOffset, yOffset, constraints.maxWidth, child.size.height);
+          location =
+              Rect.fromLTWH(xOffset, yOffset, maxWidth, childSize.height);
         } else if (childParentData.rowEnd) {
-          location = Rect.fromLTWH(xOffset, yOffset,
-              constraints.maxWidth - xOffset, child.size.height);
+          location = Rect.fromLTWH(
+              xOffset, yOffset, maxWidth - xOffset, childSize.height);
         } else {
           location = Rect.fromLTWH(
-              xOffset, yOffset, child.size.width, child.size.height);
+              xOffset, yOffset, childSize.width, childSize.height);
         }
 
         childParentData.offset = Offset(location.left, location.top);
 
         locations.add(location);
 
-        xOffset += child.size.width + _columnSpacing;
+        xOffset += childSize.width + _columnSpacing;
 
         // Update current row height
-        if (currentRowHeight < child.size.height + _rowSpacing) {
-          currentRowHeight = child.size.height + _rowSpacing;
+        if (currentRowHeight < childSize.height + _rowSpacing) {
+          currentRowHeight = childSize.height + _rowSpacing;
         }
 
         if (childParentData.fillRow || childParentData.rowEnd) {
@@ -368,9 +391,8 @@ class RenderWrapLayout extends RenderBox
         }
 
         double childAvailableWidth = 0;
-        if (childParentData.fillRow &&
-            constraints.widthConstraints().maxWidth.isFinite) {
-          childAvailableWidth = constraints.maxWidth;
+        if (childParentData.fillRow && maxWidth.isFinite) {
+          childAvailableWidth = maxWidth;
         } else {
           // Add column span to available width
           childAvailableWidth = _actualColumnWidth * childColumnSpan;
@@ -412,42 +434,43 @@ class RenderWrapLayout extends RenderBox
 
         // If row is ending, then take all available width (ignore column spanning)
         if (childParentData.rowEnd) {
-          childAvailableWidth = constraints.maxWidth - xOffset;
+          childAvailableWidth = maxWidth - xOffset;
         } else {
           // Prevent child to spanned out of the available width when column span is used and column has static width
-          childAvailableWidth =
-              min(childAvailableWidth, constraints.maxWidth - xOffset);
-
-          child.layout(
-              BoxConstraints(
-                  minWidth: 0,
-                  minHeight: 0,
-                  maxWidth: childAvailableWidth,
-                  maxHeight: constraints.maxHeight),
-              parentUsesSize: true);
-
-          // Update current row height
-          if (currentRowHeight < child.size.height + _rowSpacing) {
-            currentRowHeight = child.size.height + _rowSpacing;
-          }
-
-          Rect location = Rect.fromLTWH(
-              xOffset, yOffset, childAvailableWidth, child.size.height);
-
-          locations.add(location);
-
-          childParentData.offset = Offset(location.left, location.top);
-
-          // Increase column counter
-          columnIndex +=
-              childParentData.columnSpan > 1 ? childParentData.columnSpan : 1;
-
-          if (childParentData.fillRow || childParentData.rowEnd) {
-            yOffset += currentRowHeight;
-            columnIndex = 0;
-            currentRowHeight = 0;
-          }
+          childAvailableWidth = min(childAvailableWidth, maxWidth - xOffset);
         }
+
+        // Do dry layout measurements
+        Size childSize = child.getDryLayout(
+          BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+              maxWidth: childAvailableWidth,
+              maxHeight: double.infinity),
+        );
+
+        // Update current row height
+        if (currentRowHeight < childSize.height + _rowSpacing) {
+          currentRowHeight = childSize.height + _rowSpacing;
+        }
+
+        Rect location = Rect.fromLTWH(
+            xOffset, yOffset, childAvailableWidth, childSize.height);
+
+        locations.add(location);
+
+        childParentData.offset = Offset(location.left, location.top);
+
+        // Increase column counter
+        columnIndex +=
+            childParentData.columnSpan > 1 ? childParentData.columnSpan : 1;
+
+        if (childParentData.fillRow || childParentData.rowEnd) {
+          yOffset += currentRowHeight;
+          columnIndex = 0;
+          currentRowHeight = 0;
+        }
+
         child = childParentData.nextSibling;
       }
     }
@@ -458,8 +481,8 @@ class RenderWrapLayout extends RenderBox
   ///
   /// Layout children vertical
   ///
-  List<Rect> _layoutChildrenVertical() {
-    _calculateColumns(constraints.maxWidth);
+  List<Rect> _layoutChildrenVertical(double maxWidth) {
+    _calculateColumns(maxWidth);
 
     // Children locations
     List<Rect> locations = [];
@@ -503,43 +526,44 @@ class RenderWrapLayout extends RenderBox
           groupColumn = 0;
           groupColumnIndex = 0;
 
-          child.layout(
-              BoxConstraints(
-                  minWidth: 0,
-                  minHeight: 0,
-                  maxWidth: constraints.maxWidth,
-                  maxHeight: constraints.maxHeight),
-              parentUsesSize: true);
+          // Do dry layout measurements
+          Size childSize = child.getDryLayout(
+            BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+              maxWidth: maxWidth,
+              maxHeight: double.infinity,
+            ),
+          );
 
-          Rect location = Rect.fromLTWH(
-              0, yOffset, constraints.maxWidth, child.size.height);
+          Rect location = Rect.fromLTWH(0, yOffset, maxWidth, childSize.height);
 
           childParentData.offset = Offset(location.left, location.top);
 
           locations.add(location);
 
-          yOffset += child.size.height + actualRowSpacing;
+          yOffset += childSize.height + actualRowSpacing;
         }
       } else {
         double columnYOffset =
             columnHeights.length > groupColumn ? columnHeights[groupColumn] : 0;
 
-        double childAvailableWidth =
-            min(_actualColumnWidth, constraints.maxWidth);
+        double childAvailableWidth = min(_actualColumnWidth, maxWidth);
 
-        child.layout(
-            BoxConstraints(
-                minWidth: 0,
-                minHeight: 0,
-                maxWidth: childAvailableWidth,
-                maxHeight: constraints.maxHeight),
-            parentUsesSize: true);
+        Size childSize = child.getDryLayout(
+          BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+            maxWidth: childAvailableWidth,
+            maxHeight: double.infinity,
+          ),
+        );
 
         Rect location = Rect.fromLTWH(
             groupColumn * (_actualColumnWidth + actualColumnSpacing),
             yOffset + columnYOffset,
             childAvailableWidth,
-            child.size.height);
+            childSize.height);
 
         childParentData.offset = Offset(location.left, location.top);
 
