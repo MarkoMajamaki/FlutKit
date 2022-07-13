@@ -1,13 +1,10 @@
 import 'package:flutkit/flutkit.dart';
-import 'package:flutkit_demo/screens/controller_screen.dart';
-import 'package:flutkit_demo/screens/layout_screen.dart';
 import 'package:flutkit_demo/screens/sliver_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../routes.dart';
 import 'menu_screen.dart';
 import 'submenu_screen.dart';
-import 'test1_screen.dart';
 
 // Find better solution later!
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
