@@ -1,21 +1,24 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutkit/shells/web/tab_definition.dart';
+import 'package:flutter/material.dart';
 
-import 'tab_shell_controller.dart';
 import 'tab_shell_page.dart';
 import 'tab_shell_router_path.dart';
 
-class TabShellRouterDelegate extends RouterDelegate<TabShellRoutePath>
+class TabShellBodyRouterDelegate extends RouterDelegate<TabShellRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<TabShellRoutePath> {
   ///
   /// Create delegate with navigation controller which contains state of current
   /// page.
   ///
-  TabShellRouterDelegate(this.tabShellController) {
+  TabShellBodyRouterDelegate(this.tabController, this.tabs) {
     _navigatorKey = GlobalKey<NavigatorState>();
   }
 
   // Tab navigation controller to listen
-  TabShellController tabShellController;
+  TabController tabController;
+
+  // Tabs definitions
+  final List<TabDefinition> tabs;
 
   late final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -31,7 +34,7 @@ class TabShellRouterDelegate extends RouterDelegate<TabShellRoutePath>
     return Navigator(
       key: navigatorKey,
       pages: [
-        TabShellPage(child: _getView(tabShellController.tabName)),
+        TabShellPage(child: _getTabViewBody(tabController.index, context)),
       ],
       onPopPage: (route, result) {
         notifyListeners();
@@ -43,26 +46,8 @@ class TabShellRouterDelegate extends RouterDelegate<TabShellRoutePath>
   ///
   /// Get view by name
   ///
-  Widget _getView(String viewName) {
-    /*
-    switch (viewName.toLowerCase()) {
-      case ContactPage.route:
-        return const ContactPage();
-      case ProductsPage.route:
-        return const ProductsPage();
-      case BeekeeperPage.route:
-        return const BeekeeperPage();
-      case PollinationPage.route:
-        return const PollinationPage();
-      case UnknownPage.route:
-        return const UnknownPage();
-      case "/":
-      case HomePage.route:
-      default:
-        return const HomePage();
-    }
-    */
-    return Placeholder();
+  Widget _getTabViewBody(int tabIndex, BuildContext context) {
+    return tabs.elementAt(tabIndex).buildPage(context);
   }
 
   ///

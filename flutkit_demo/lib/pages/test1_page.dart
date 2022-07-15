@@ -1,35 +1,38 @@
 import 'package:flutkit/flutkit.dart';
 import 'package:flutter/material.dart';
 
-import 'test2_screen.dart';
+import 'test2_page.dart';
 
-class Test1Screen extends StatefulWidget {
-  static String route = "test1screen";
+class Test1Page extends StatefulWidget {
+  const Test1Page({Key? key}) : super(key: key);
+
+  static String route = "test1page";
+
   @override
-  _Test1ScreenState createState() => _Test1ScreenState();
+  State<Test1Page> createState() => _Test1PageState();
 }
 
-class _Test1ScreenState extends State<Test1Screen> {
+class _Test1PageState extends State<Test1Page> {
   final SideBarController _extraMenuController = SideBarController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'AppBar content',
           style: TextStyle(color: Colors.black),
         ),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
       ),
       body: SideBar(
         controller: _extraMenuController,
-        menuLocation: MenuLocation.Right,
+        menuLocation: MenuLocation.right,
         menuWidth: 300,
         menu: Container(
           color: Colors.white,
-          child: Placeholder(),
+          child: const Placeholder(),
         ),
         body: Center(
           child: SizedBox(
@@ -39,11 +42,11 @@ class _Test1ScreenState extends State<Test1Screen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
-                  child: Text('navigate'),
+                  child: const Text('navigate'),
                   onPressed: () {
                     setState(() {
                       // Navigator.pushNamed(context, Test2Screen.route);
-                      Navigator.of(context).pushNamed(Test2Screen.route,
+                      Navigator.of(context).pushNamed(Test2Page.route,
                           arguments: Test2ScreenArguments(
                               "Navigated from test1 page!"));
                       // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Test2Screen()));
@@ -52,7 +55,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('open menu'),
+                  child: const Text('open menu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isMenuOpen = true;
@@ -60,7 +63,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('close menu'),
+                  child: const Text('close menu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isMenuOpen = false;
@@ -68,7 +71,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('open submenu'),
+                  child: const Text('open submenu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isSubMenuOpen = true;
@@ -76,7 +79,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('close submenu'),
+                  child: const Text('close submenu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isSubMenuOpen = false;
@@ -88,7 +91,7 @@ class _Test1ScreenState extends State<Test1Screen> {
                     _extraMenuController.isMenuOpen =
                         !_extraMenuController.isMenuOpen;
                   },
-                  child: Text("Open close extra menu"),
+                  child: const Text("Open close extra menu"),
                 )
               ],
             ),

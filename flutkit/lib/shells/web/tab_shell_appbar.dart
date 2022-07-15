@@ -1,28 +1,29 @@
+import 'package:flutkit/shells/web/tab_definition.dart';
 import 'package:flutter/material.dart';
+
+import 'tab_web_app_styles.dart';
 
 ///
 /// Shell appbar. On desktop mode, show tabs and hide side menu button.
 /// On other modes, show side menu button and hide tabs.
 ///
 class TabShellAppBar extends StatefulWidget {
-  final List<Widget> tabs;
-  final Widget? logo;
-  final double? contentMaxWidth;
-  final int? initTabIndex;
-  final Function(int) onTabTapped;
-  final Function onMenuButtonTapped;
-  final TabShellAppBarStyle? style;
-
   const TabShellAppBar({
     Key? key,
     required this.tabs,
-    required this.onTabTapped,
-    this.initTabIndex,
+    required this.tabController,
     this.contentMaxWidth,
     required this.onMenuButtonTapped,
     this.logo,
     this.style,
   }) : super(key: key);
+
+  final List<TabDefinition> tabs;
+  final TabController tabController;
+  final Widget? logo;
+  final double? contentMaxWidth;
+  final Function onMenuButtonTapped;
+  final TabShellAppBarStyle? style;
 
   @override
   State<TabShellAppBar> createState() => _TabShellAppBarState();
@@ -30,15 +31,17 @@ class TabShellAppBar extends StatefulWidget {
 
 class _TabShellAppBarState extends State<TabShellAppBar>
     with TickerProviderStateMixin {
-  late TabController _tabController;
   late AnimationController _menuIconAnimationController;
   late TabShellAppBarStyle _actualStyle;
+
+  GlobalKey qweqweKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     /// Get actual style from theme context or giving style
     _actualStyle =
         widget.style ?? Theme.of(context).extension<TabShellAppBarStyle>()!;
+
     return Column(
       children: [
         ConstrainedBox(
@@ -48,7 +51,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
             children: [
               if (widget.logo != null)
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: widget.logo,
                 ),
               Expanded(
@@ -67,12 +70,6 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   ///
   @override
   void initState() {
-    _tabController = TabController(length: widget.tabs.length, vsync: this);
-
-    if (widget.initTabIndex != null) {
-      _tabController.index = widget.initTabIndex!;
-    }
-
     _menuIconAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 450),
@@ -86,7 +83,6 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   ///
   @override
   void dispose() {
-    _tabController.dispose();
     _menuIconAnimationController.dispose();
     super.dispose();
   }
@@ -95,9 +91,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   /// Build content based on available size
   ///
   Widget _buildContent() {
-    // TODO
-    if (widget.contentMaxWidth == null ||
-        MediaQuery.of(context).size.width > 750) {
+    if (MediaQuery.of(context).size.width > 860) {
       return _buildTabs();
     } else {
       return _buildMenuButton();
@@ -108,6 +102,14 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   /// Build all tabs aligned to right
   ///
   Widget _buildTabs() {
+    List<Widget> tabWidgets = List.empty(growable: true);
+
+    // Build appbar tabs
+    for (int i = 0; i < widget.tabs.length; i++) {
+      tabWidgets
+          .add(_buildTab(widget.tabs[i], widget.tabController.index == i));
+    }
+
     return Align(
       alignment: Alignment.centerRight,
       child: Theme(
@@ -117,27 +119,60 @@ class _TabShellAppBarState extends State<TabShellAppBar>
           splashColor: Colors.transparent,
         ),
         child: TabBar(
-          controller: _tabController,
+          key: qweqweKey,
+          controller: widget.tabController,
           indicator: _buildUnderlineIndicator(),
-          onTap: (index) {
-            widget.onTabTapped(index);
-          },
+          labelColor: _actualStyle.selectedLabelColor,
+          unselectedLabelColor: _actualStyle.unselectedLabelColor,
           isScrollable: true,
-          labelPadding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 12,
-            top: 12,
-          ),
-          tabs: widget.tabs,
+          labelPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          tabs: tabWidgets,
         ),
       ),
     );
   }
 
   ///
-  /// Build underline indicator. If last tab is outlined style and selected,
-  /// then hide underline indicator
+  /// Build single tab based on definition
+  ///
+  Widget _buildTab(TabDefinition tabDefinition, bool isSelected) {
+    if (tabDefinition.style == TabStyles.outlined) {
+      return Tab(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(1000),
+              color: isSelected ? _actualStyle.outlinedTabColor : Colors.white,
+              border:
+                  Border.all(width: 2, color: _actualStyle.outlinedTabColor),
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  tabDefinition.text,
+                  style: TextStyle(
+                    color: isSelected
+                        ? Colors.white
+                        : _actualStyle.outlinedTabColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Tab(text: tabDefinition.text);
+    }
+  }
+
+  ///
+  /// Build underline indicator
   ///
   UnderlineTabIndicator _buildUnderlineIndicator() {
     return UnderlineTabIndicator(
@@ -170,40 +205,6 @@ class _TabShellAppBarState extends State<TabShellAppBar>
           ),
         ),
       ),
-    );
-  }
-}
-
-///
-/// TabShellAppBar style
-///
-class TabShellAppBarStyle extends ThemeExtension<TabShellAppBarStyle> {
-  TabShellAppBarStyle({
-    required this.lineIndicatorColor,
-  });
-
-  final Color lineIndicatorColor;
-
-  @override
-  ThemeExtension<TabShellAppBarStyle> copyWith({
-    Color? lineIndicatorColor,
-  }) {
-    return TabShellAppBarStyle(
-      lineIndicatorColor: lineIndicatorColor ?? this.lineIndicatorColor,
-    );
-  }
-
-  @override
-  ThemeExtension<TabShellAppBarStyle> lerp(
-    ThemeExtension<TabShellAppBarStyle>? other,
-    double t,
-  ) {
-    if (other is! TabShellAppBarStyle) {
-      return this;
-    }
-
-    return TabShellAppBarStyle(
-      lineIndicatorColor: lineIndicatorColor,
     );
   }
 }

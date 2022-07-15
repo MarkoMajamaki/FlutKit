@@ -9,12 +9,11 @@ import 'package:flutter/rendering.dart';
 class SliverFloatingBox extends SingleChildRenderObjectWidget {
   final double? pinnedToolBarHeight;
 
-  SliverFloatingBox({
+  const SliverFloatingBox({
     Widget? child,
-    double? pinnedToolBarHeight,
+    this.pinnedToolBarHeight,
     Key? key,
-  })  : pinnedToolBarHeight = pinnedToolBarHeight,
-        super(child: child, key: key);
+  }) : super(child: child, key: key);
 
   @override
   RenderSliverFloatingBox createRenderObject(BuildContext context) =>
@@ -26,9 +25,8 @@ class RenderSliverFloatingBox extends RenderSliverSingleBoxAdapter {
 
   RenderSliverFloatingBox({
     RenderBox? child,
-    double? pinnedToolBarHeight,
-  })  : pinnedToolBarHeight = pinnedToolBarHeight,
-        super(child: child);
+    this.pinnedToolBarHeight,
+  }) : super(child: child);
 
   @override
   void performLayout() {
@@ -40,7 +38,7 @@ class RenderSliverFloatingBox extends RenderSliverSingleBoxAdapter {
     double actualOverlap = pinnedToolBarHeight ?? constraints.overlap;
 
     child!.layout(
-        this.constraints.asBoxConstraints(
+        constraints.asBoxConstraints(
             maxExtent: constraints.viewportMainAxisExtent - actualOverlap),
         parentUsesSize: true);
 

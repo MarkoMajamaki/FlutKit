@@ -1,19 +1,19 @@
 import 'package:flutkit/flutkit.dart';
 import 'package:flutter/material.dart';
 
-class SliverScreen extends StatefulWidget {
-  static String route = "SliverScreen";
+class SliverPage extends StatefulWidget {
+  const SliverPage({Key? key}) : super(key: key);
 
-  SliverScreen({Key? key}) : super(key: key);
+  static String route = "sliverpage";
 
   @override
-  _SliverScreenState createState() => _SliverScreenState();
+  State<SliverPage> createState() => _SliverPageState();
 }
 
-class _SliverScreenState extends State<SliverScreen> {
+class _SliverPageState extends State<SliverPage> {
   double _availableWidth = 0;
-  double _pinnedToolbarHeight = 50;
-  final dataKey = new GlobalKey();
+  final double _pinnedToolbarHeight = 50;
+  final dataKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _SliverScreenState extends State<SliverScreen> {
                 floating: false,
                 toolbarHeight: _pinnedToolbarHeight,
                 expandedHeight: 250,
-                flexibleSpace: FlexibleSpaceBar(
+                flexibleSpace: const FlexibleSpaceBar(
                   title: Text('SliverAppBar', textScaleFactor: 1),
                 ),
               ),
@@ -39,7 +39,7 @@ class _SliverScreenState extends State<SliverScreen> {
                   builder: (context, constraints) {
                     return Stack(
                       children: [
-                        Placeholder(),
+                        const Placeholder(),
                         Positioned(
                           width: 300,
                           height: constraints.maxHeight,
@@ -97,7 +97,7 @@ class _SliverScreenState extends State<SliverScreen> {
             onPressed: () {
               Scrollable.ensureVisible(dataKey.currentContext!);
             },
-            child: Text("scroll"),
+            child: const Text("scroll"),
           ),
         );
       },
@@ -108,67 +108,67 @@ class _SliverScreenState extends State<SliverScreen> {
     return Column(
       children: [
         ListTile(
-          title: Text("FloatingItem1"),
+          title: const Text("FloatingItem1"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem2"),
+          title: const Text("FloatingItem2"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem3"),
+          title: const Text("FloatingItem3"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem4"),
+          title: const Text("FloatingItem4"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem5"),
+          title: const Text("FloatingItem5"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem6"),
+          title: const Text("FloatingItem6"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem7"),
+          title: const Text("FloatingItem7"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem8"),
+          title: const Text("FloatingItem8"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem9"),
+          title: const Text("FloatingItem9"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem10"),
+          title: const Text("FloatingItem10"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem11"),
+          title: const Text("FloatingItem11"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem12"),
+          title: const Text("FloatingItem12"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem13"),
+          title: const Text("FloatingItem13"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem14"),
+          title: const Text("FloatingItem14"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem15"),
+          title: const Text("FloatingItem15"),
           onTap: () {},
         ),
         ListTile(
-          title: Text("FloatingItem16"),
+          title: const Text("FloatingItem16"),
           onTap: () {},
         ),
       ],

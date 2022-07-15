@@ -1,16 +1,18 @@
 import 'package:flutkit/flutkit.dart';
 import 'package:flutter/material.dart';
 
-import 'test1_screen.dart';
+import 'test1_page.dart';
 
-class Test2Screen extends StatefulWidget {
-  static String route = "test2screen";
+class Test2Page extends StatefulWidget {
+  const Test2Page({Key? key}) : super(key: key);
+
+  static String route = "test2page";
 
   @override
-  _Test2ScreenState createState() => _Test2ScreenState();
+  State<Test2Page> createState() => _Test2PageState();
 }
 
-class _Test2ScreenState extends State<Test2Screen> {
+class _Test2PageState extends State<Test2Page> {
   @override
   Widget build(BuildContext context) {
     Object? args = ModalRoute.of(context)!.settings.arguments;
@@ -19,9 +21,9 @@ class _Test2ScreenState extends State<Test2Screen> {
       appBar: AppBar(
         title: Text(
           args == null ? "" : (args as Test2ScreenArguments).text,
-          style: TextStyle(color: Colors.black),
+          style: const TextStyle(color: Colors.black),
         ),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
       ),
       body: Container(
@@ -34,16 +36,16 @@ class _Test2ScreenState extends State<Test2Screen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
-                  child: Text('navigate to page 1'),
+                  child: const Text('navigate to page 1'),
                   onPressed: () {
                     setState(() {
-                      Navigator.of(context).pushNamed(Test1Screen.route);
+                      Navigator.of(context).pushNamed(Test1Page.route);
                       // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => Test1Screen()));
                     });
                   },
                 ),
                 ElevatedButton(
-                  child: Text('navigate back'),
+                  child: const Text('navigate back'),
                   onPressed: () {
                     setState(() {
                       Navigator.of(context).pop();
@@ -51,7 +53,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('open menu'),
+                  child: const Text('open menu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isMenuOpen = true;
@@ -59,7 +61,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('close menu'),
+                  child: const Text('close menu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isMenuOpen = false;
@@ -67,7 +69,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('open submenu'),
+                  child: const Text('open submenu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isSubMenuOpen = true;
@@ -75,7 +77,7 @@ class _Test2ScreenState extends State<Test2Screen> {
                   },
                 ),
                 ElevatedButton(
-                  child: Text('close submenu'),
+                  child: const Text('close submenu'),
                   onPressed: () {
                     setState(() {
                       SideBar.of(context).isSubMenuOpen = false;

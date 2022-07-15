@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 class TabDefinition {
   final String route;
-  final Widget Function(BuildContext context) buildAppBarWidget;
-  final Widget Function(BuildContext context)? buildSideBarWidget;
+  final String text;
+  final TabStyles style;
+  final Widget Function(BuildContext context) buildPage;
 
   TabDefinition({
+    this.style = TabStyles.text,
     required this.route,
-    required this.buildAppBarWidget,
-    this.buildSideBarWidget,
+    required this.text,
+    required this.buildPage,
   });
 }
+
+enum TabStyles { text, outlined }

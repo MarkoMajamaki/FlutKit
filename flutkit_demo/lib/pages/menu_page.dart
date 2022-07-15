@@ -2,18 +2,20 @@ import 'package:flutkit/flutkit.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'home_screen.dart';
-import 'test2_screen.dart';
+import 'home_page.dart';
+import 'test2_page.dart';
 import '../models/menu.dart';
 
-class MenuScreen extends StatefulWidget {
-  static String route = "menuScreen";
+class MenuPage extends StatefulWidget {
+  const MenuPage({Key? key}) : super(key: key);
+
+  static String route = "menupage";
 
   @override
-  _MenuScreenState createState() => _MenuScreenState();
+  State<MenuPage> createState() => _MenuPageState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+class _MenuPageState extends State<MenuPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,11 +23,11 @@ class _MenuScreenState extends State<MenuScreen> {
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0,
-        title: Container(
+        title: SizedBox(
           width: 56,
           height: 56,
           child: IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
+            icon: const Icon(Icons.menu, color: Colors.black),
             onPressed: () {
               SideBar.of(context).isMenuOpen = !SideBar.of(context).isMenuOpen;
             },
@@ -46,19 +48,19 @@ class _MenuScreenState extends State<MenuScreen> {
 
                   // If model is SeparatorModel, then add separator widget
                   if (itemModel is SeparatorModel) {
-                    return Divider();
+                    return const Divider();
                   }
                   // If model is MenuItemModel, then add menu item widget
                   else if (itemModel is MenuItemModel) {
                     MenuItemModel menuItemModel = itemModel;
                     return ListTile(
-                      leading: Icon(Icons.texture),
+                      leading: const Icon(Icons.texture),
                       title: Text(menuItemModel.title, maxLines: 1),
                       // subtitle: Text(menuItemModel.subTitle, maxLines: 1),
                       onTap: () {
                         menuItemModel.doSomething();
                         // Navigator.of(context, rootNavigator: false).push(MaterialPageRoute(builder: (context) => Test2Screen()));
-                        navigatorKey.currentState!.pushNamed(Test2Screen.route,
+                        navigatorKey.currentState!.pushNamed(Test2Page.route,
                             arguments:
                                 Test2ScreenArguments("Navigated from menu!"));
                       },

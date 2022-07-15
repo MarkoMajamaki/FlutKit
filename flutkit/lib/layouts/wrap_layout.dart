@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'dart:math';
 import 'dart:core';
 
-enum WrapOrientation { Vertical, Horizontal }
+enum WrapOrientation { vertical, horizontal }
 
 ///
 /// Layout children vertical or horizontal and start new line if not enought space
@@ -20,26 +20,18 @@ class WrapLayout extends MultiChildRenderObjectWidget {
   final double rowSpacing;
   final WrapOrientation orientation;
 
-  WrapLayout(
-      {Key? key,
-      double? columnWidth,
-      double columnMaxWidth = double.maxFinite,
-      double columnMinWidth = 0,
-      int? columnsCount,
-      int? maxColumnsCount,
-      double columnSpacing = 0,
-      double rowSpacing = 0,
-      WrapOrientation orientation = WrapOrientation.Horizontal,
-      List<Widget> children = const []})
-      : this.columnWidth = columnWidth,
-        this.columnMaxWidth = columnMaxWidth,
-        this.columnMinWidth = columnMinWidth,
-        this.columnsCount = columnsCount,
-        this.maxColumnsCount = maxColumnsCount,
-        this.columnSpacing = columnSpacing,
-        this.rowSpacing = rowSpacing,
-        this.orientation = orientation,
-        super(key: key, children: children);
+  WrapLayout({
+    Key? key,
+    this.columnWidth,
+    this.columnMaxWidth = double.maxFinite,
+    this.columnMinWidth = 0,
+    this.columnsCount,
+    this.maxColumnsCount,
+    this.columnSpacing = 0,
+    this.rowSpacing = 0,
+    this.orientation = WrapOrientation.horizontal,
+    children,
+  }) : super(key: key, children: children);
 
   ///
   /// Create render object to render widgets
@@ -92,7 +84,7 @@ class RenderWrapLayout extends RenderBox
     int? maxColumnsCount,
     double columnSpacing = 0,
     double rowSpacing = 0,
-    WrapOrientation orientation = WrapOrientation.Horizontal,
+    WrapOrientation orientation = WrapOrientation.horizontal,
   })  : _columnWidth = columnWidth,
         _columnMaxWidth = columnMaxWidth,
         _columnMinWidth = columnMinWidth,
@@ -163,7 +155,7 @@ class RenderWrapLayout extends RenderBox
   }
 
   WrapOrientation get orientation => _orientation;
-  WrapOrientation _orientation = WrapOrientation.Horizontal;
+  WrapOrientation _orientation = WrapOrientation.horizontal;
   set orientation(WrapOrientation value) {
     if (_orientation == value) return;
     _orientation = value;
@@ -266,7 +258,7 @@ class RenderWrapLayout extends RenderBox
       child = childParentData.nextSibling;
     }
 
-    this.size = Size(width, height);
+    size = Size(width, height);
   }
 
   ///
@@ -281,7 +273,7 @@ class RenderWrapLayout extends RenderBox
   /// Layout children
   ///
   List<Rect> _layoutChildren(double maxWidth, double maxHeight) {
-    if (_orientation == WrapOrientation.Horizontal) {
+    if (_orientation == WrapOrientation.horizontal) {
       return _layoutChildrenHorizontally(maxWidth);
     } else {
       return _layoutChildrenVertical(maxWidth);
@@ -510,7 +502,7 @@ class RenderWrapLayout extends RenderBox
       double actualColumnSpacing = groupColumn > 0 ? _columnSpacing : 0;
 
       if (i == nextWholeRowChildIndex) {
-        if (columnHeights.length > 0) {
+        if (columnHeights.isNotEmpty) {
           yOffset += columnHeights.reduce(max);
           columnHeights.clear();
 
@@ -696,10 +688,10 @@ class WrapLayoutPlacement extends ParentDataWidget<WrapParentData> {
     rowEnd = false,
     columnSpan = 1,
     fillRow = false,
-  })  : this.columnSpan = columnSpan ?? 1,
-        this.rowStart = rowStart ?? false,
-        this.rowEnd = rowEnd ?? false,
-        this.fillRow = fillRow ?? false,
+  })  : columnSpan = columnSpan ?? 1,
+        rowStart = rowStart ?? false,
+        rowEnd = rowEnd ?? false,
+        fillRow = fillRow ?? false,
         super(key: key, child: child);
 
   @override

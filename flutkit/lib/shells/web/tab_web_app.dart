@@ -7,17 +7,18 @@ import 'tab_shell_route_information_parser.dart';
 class TabWebApp extends StatelessWidget {
   const TabWebApp({
     Key? key,
-    this.theme,
-    required this.tabDefinitions,
-    this.logo,
+    required this.tabs,
+    required this.tabController,
     this.bodyMaxWidth,
+    this.theme,
+    this.logo,
   }) : super(key: key);
 
   // App theme
   final ThemeData? theme;
 
   // Build tab button to appbar
-  final List<TabDefinition> tabDefinitions;
+  final List<TabDefinition> tabs;
 
   // Logo on top left
   final Widget? logo;
@@ -25,12 +26,18 @@ class TabWebApp extends StatelessWidget {
   // App body max width
   final double? bodyMaxWidth;
 
+  final TabController tabController;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       theme: theme,
       debugShowCheckedModeBanner: false,
-      routerDelegate: TabShellAppRouterDelegate(tabDefinitions),
+      routerDelegate: TabShellAppRouterDelegate(
+        tabs: tabs,
+        logo: logo,
+        tabController: tabController,
+      ),
       routeInformationParser: TabShellRouteInformationParser(),
     );
   }

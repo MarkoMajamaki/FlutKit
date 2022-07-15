@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'tab_definition.dart';
 import 'tab_shell.dart';
-import 'tab_shell_controller.dart';
 import 'tab_shell_router_path.dart';
 
 class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
@@ -11,18 +10,25 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
   /// Create delegate with navigation controller which contains state of current
   /// page.
   ///
-  TabShellAppRouterDelegate(this.tabDefinitions) {
-    _tabShellController = TabShellController(tabDefinitions.first.route);
-    _tabShellController.addListener(notifyListeners);
-
+  TabShellAppRouterDelegate({
+    required this.tabs,
+    required this.tabController,
+    this.logo,
+  }) {
     _navigatorKey = GlobalKey<NavigatorState>();
+
+    // Listen tab changes to update url with route information parser
+    tabController.addListener(notifyListeners);
   }
 
   // Tab definitions
-  final List<TabDefinition> tabDefinitions;
+  final List<TabDefinition> tabs;
 
-  // Navigation controller to listen
-  late final TabShellController _tabShellController;
+  // Logo on top left
+  final Widget? logo;
+
+  // Tab controller
+  final TabController tabController;
 
   // Key used to retrieve current navigator
   late final GlobalKey<NavigatorState> _navigatorKey;
@@ -39,14 +45,14 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
   ///
   @override
   TabShellRoutePath get currentConfiguration =>
-      TabShellRoutePath(_tabShellController.tabName);
+      TabShellRoutePath(tabs.elementAt(tabController.index).route);
 
   ///
   /// Dispose listeneres
   ///
   @override
   void dispose() {
-    _tabShellController.removeListener(notifyListeners);
+    tabController.removeListener(notifyListeners);
     super.dispose();
   }
 
@@ -56,13 +62,15 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      key: navigatorKey,
+      key: _navigatorKey,
       pages: [
         MaterialPage(
-            child: TabShell(
-          tabDefinitions: tabDefinitions,
-          controller: _tabShellController,
-        )),
+          child: TabShell(
+            tabs: tabs,
+            tabController: tabController,
+            logo: logo,
+          ),
+        ),
       ],
       onPopPage: (route, result) {
         if (!route.didPop(result)) return false;
@@ -74,13 +82,20 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
   }
 
   ///
-  /// Convert navigation state into app state
+  /// Convert navigation state into app state.
   ///
   /// This is where all your logic should take place: verifying that the user
   /// can access what he/she is trying to access, redirecting if needed.
   ///
   @override
   Future<void> setNewRoutePath(TabShellRoutePath configuration) async {
-    _tabShellController.tabName = configuration.tabName;
+    for (int i = 0; i < tabs.length; i++) {
+      TabDefinition tabDefinition = tabs.elementAt(i);
+      if (tabDefinition.route == configuration.route) {
+        tabController.index = i;
+        return;
+      }
+    }
+    tabController.index = 0;
   }
 }

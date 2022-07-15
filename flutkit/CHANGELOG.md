@@ -21,3 +21,7 @@
 ## [0.0.6]
 
 * Fix SideBar constraints when multiple SideBars are used inside each other
+
+## [0.0.7]
+
+* Add TabWebApp shell, update Flutter version and fix bugs

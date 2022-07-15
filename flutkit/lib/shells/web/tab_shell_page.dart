@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+///
+/// Shell root page which has no animation during page changes.
+///
 class TabShellPage extends Page {
   final Widget child;
 
