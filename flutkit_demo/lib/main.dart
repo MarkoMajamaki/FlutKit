@@ -1,10 +1,8 @@
 import 'package:flutkit/flutkit.dart';
-import 'package:flutkit_demo/pages/home_page.dart';
 import 'package:flutkit_demo/pages/layout_page.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/menu_page.dart';
-import 'pages/sliver_page.dart';
 import 'pages/test1_page.dart';
 import 'pages/test2_page.dart';
 

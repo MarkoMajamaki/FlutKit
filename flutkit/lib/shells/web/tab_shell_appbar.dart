@@ -1,3 +1,4 @@
+import 'package:flutkit/flutkit.dart';
 import 'package:flutkit/shells/web/tab_definition.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ class TabShellAppBar extends StatefulWidget {
     Key? key,
     required this.tabs,
     required this.tabController,
+    required this.sideBarController,
     this.contentMaxWidth,
     required this.onMenuButtonTapped,
     this.logo,
@@ -24,6 +26,7 @@ class TabShellAppBar extends StatefulWidget {
   final double? contentMaxWidth;
   final Function onMenuButtonTapped;
   final TabShellAppBarStyle? style;
+  final SideBarController sideBarController;
 
   @override
   State<TabShellAppBar> createState() => _TabShellAppBarState();
@@ -74,6 +77,17 @@ class _TabShellAppBarState extends State<TabShellAppBar>
       vsync: this,
       duration: const Duration(milliseconds: 450),
     );
+
+    // Sync sidebar controller state with menu icon
+    widget.sideBarController.addListener(() {
+      if (widget.sideBarController.isMenuOpen &&
+          _menuIconAnimationController.status != AnimationStatus.forward) {
+        _menuIconAnimationController.forward();
+      } else if (_menuIconAnimationController.status !=
+          AnimationStatus.reverse) {
+        _menuIconAnimationController.reverse();
+      }
+    });
 
     super.initState();
   }
@@ -195,9 +209,6 @@ class _TabShellAppBarState extends State<TabShellAppBar>
         child: IconButton(
           onPressed: () {
             widget.onMenuButtonTapped();
-            _menuIconAnimationController.isCompleted
-                ? _menuIconAnimationController.reverse()
-                : _menuIconAnimationController.forward();
           },
           icon: AnimatedIcon(
             icon: AnimatedIcons.menu_close,

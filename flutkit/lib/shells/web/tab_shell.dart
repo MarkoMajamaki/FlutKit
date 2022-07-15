@@ -1,7 +1,9 @@
 import 'package:flutkit/shells/web/tab_definition.dart';
+import 'package:flutkit/shells/web/tab_shell_sidebarmenu.dart';
 import 'package:flutter/material.dart';
 
 import '../../widgets/sidebar.dart';
+import 'tab_shell_sidebarmenu.dart';
 import 'tab_shell_appbar.dart';
 import 'tab_shell_body_router_delegate.dart';
 
@@ -76,7 +78,10 @@ class _TabShellState extends State<TabShell> with TickerProviderStateMixin {
             child: SideBar(
               controller: _sideBarController,
               body: _buildBody(),
-              menu: const Placeholder(),
+              menu: TabShellSideBarMenu(
+                tabs: widget.tabs,
+                tabController: widget.tabController,
+              ),
               menuOpenMode: MenuOpenMode.floating,
               duration: 500,
               menuLocation: MenuLocation.right,
@@ -94,6 +99,7 @@ class _TabShellState extends State<TabShell> with TickerProviderStateMixin {
     return TabShellAppBar(
       contentMaxWidth: widget.bodyMaxWidth,
       tabController: widget.tabController,
+      sideBarController: _sideBarController,
       onMenuButtonTapped: () {
         _sideBarController.isMenuOpen = !_sideBarController.isMenuOpen;
       },
