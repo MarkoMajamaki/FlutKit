@@ -1,8 +1,5 @@
 import 'package:flutkit/flutkit.dart';
-import 'package:flutkit/shells/web/tab_definition.dart';
 import 'package:flutter/material.dart';
-
-import 'tab_web_app_styles.dart';
 
 ///
 /// Shell appbar. On desktop mode, show tabs and hide side menu button.
@@ -54,7 +51,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
             children: [
               if (widget.logo != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.only(left: 32, right: 16),
                   child: widget.logo,
                 ),
               Expanded(
@@ -105,7 +102,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   /// Build content based on available size
   ///
   Widget _buildContent() {
-    if (MediaQuery.of(context).size.width > 860) {
+    if (MediaQuery.of(context).size.width > 884) {
       return _buildTabs();
     } else {
       return _buildMenuButton();
@@ -124,24 +121,26 @@ class _TabShellAppBarState extends State<TabShellAppBar>
           .add(_buildTab(widget.tabs[i], widget.tabController.index == i));
     }
 
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Theme(
-        data: ThemeData(
-          highlightColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-        ),
-        child: TabBar(
-          key: qweqweKey,
-          controller: widget.tabController,
-          indicator: _buildUnderlineIndicator(),
-          labelColor: _actualStyle.selectedLabelColor,
-          unselectedLabelColor: _actualStyle.unselectedLabelColor,
-          isScrollable: true,
-          labelPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          tabs: tabWidgets,
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Theme(
+          data: ThemeData(
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
+          ),
+          child: TabBar(
+            controller: widget.tabController,
+            indicator: _buildUnderlineIndicator(),
+            labelColor: _actualStyle.selectedLabelColor,
+            unselectedLabelColor: _actualStyle.unselectedLabelColor,
+            isScrollable: true,
+            labelPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            tabs: tabWidgets,
+          ),
         ),
       ),
     );

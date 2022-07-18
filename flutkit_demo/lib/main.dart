@@ -75,7 +75,7 @@ class _MyWebAppState extends State<MyWebApp> with TickerProviderStateMixin {
     return TabWebApp(
       tabController: _tabController,
       theme: getTheme(),
-      bodyMaxWidth: 1200,
+      appBarMaxWidth: 1200,
       tabs: tabs,
       logo: const SizedBox(
         height: 50,

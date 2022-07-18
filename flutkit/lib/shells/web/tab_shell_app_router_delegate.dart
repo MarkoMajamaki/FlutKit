@@ -13,6 +13,7 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
   TabShellAppRouterDelegate({
     required this.tabs,
     required this.tabController,
+    this.appBarMaxWidth,
     this.logo,
   }) {
     _navigatorKey = GlobalKey<NavigatorState>();
@@ -29,6 +30,9 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
 
   // Tab controller
   final TabController tabController;
+
+  // AppBar max width
+  final double? appBarMaxWidth;
 
   // Key used to retrieve current navigator
   late final GlobalKey<NavigatorState> _navigatorKey;
@@ -69,6 +73,7 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
             tabs: tabs,
             tabController: tabController,
             logo: logo,
+            appBarMaxWidth: appBarMaxWidth,
           ),
         ),
       ],

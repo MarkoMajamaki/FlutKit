@@ -13,7 +13,7 @@ class TabShell extends StatefulWidget {
     required this.tabs,
     required this.tabController,
     this.logo,
-    this.bodyMaxWidth,
+    this.appBarMaxWidth,
   }) : super(key: key);
 
   // Controller to change tabs
@@ -26,7 +26,7 @@ class TabShell extends StatefulWidget {
   final Widget? logo;
 
   // App body max width
-  final double? bodyMaxWidth;
+  final double? appBarMaxWidth;
 
   @override
   State<TabShell> createState() => _TabShellState();
@@ -97,7 +97,7 @@ class _TabShellState extends State<TabShell> with TickerProviderStateMixin {
   ///
   Widget _buildAppBar() {
     return TabShellAppBar(
-      contentMaxWidth: widget.bodyMaxWidth,
+      contentMaxWidth: widget.appBarMaxWidth,
       tabController: widget.tabController,
       sideBarController: _sideBarController,
       onMenuButtonTapped: () {

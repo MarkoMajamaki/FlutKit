@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 class ResponsiveLayout extends StatefulWidget {
   const ResponsiveLayout(
       {Key? key,
-      required this.mobileBody,
-      required this.tabletBody,
-      required this.desktopBody,
-      required this.mobileMaxWidth,
-      required this.tabletMaxWidth})
+      this.mobileBody,
+      this.tabletBody,
+      this.desktopBody,
+      this.mobileMaxWidth = 800,
+      this.tabletMaxWidth = 1000})
       : super(key: key);
 
-  final Widget mobileBody;
-  final Widget tabletBody;
-  final Widget desktopBody;
+  final Widget? mobileBody;
+  final Widget? tabletBody;
+  final Widget? desktopBody;
 
   final double mobileMaxWidth;
   final double tabletMaxWidth;
@@ -58,15 +58,25 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
               originalWidth = constraints.maxHeight;
             }
 
-            if (originalWidth < widget.mobileMaxWidth) {
+            if (originalWidth < widget.mobileMaxWidth &&
+                widget.mobileBody != null) {
               layoutType = ResponsiveLayoutTypes.mobile;
-              return widget.mobileBody;
-            } else if (originalWidth < widget.tabletMaxWidth) {
+              return widget.mobileBody!;
+            } else if (originalWidth < widget.tabletMaxWidth &&
+                widget.tabletBody != null) {
               layoutType = ResponsiveLayoutTypes.tablet;
-              return widget.tabletBody;
-            } else {
+              return widget.tabletBody!;
+            } else if (widget.desktopBody != null) {
               layoutType = ResponsiveLayoutTypes.deskotp;
-              return widget.desktopBody;
+              return widget.desktopBody!;
+            } else if (widget.desktopBody != null ||
+                widget.tabletBody != null ||
+                widget.mobileBody != null) {
+              return widget.desktopBody ??
+                  widget.tabletBody ??
+                  widget.mobileBody!;
+            } else {
+              throw Exception();
             }
           }),
         );

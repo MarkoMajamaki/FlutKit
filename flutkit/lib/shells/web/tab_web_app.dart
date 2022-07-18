@@ -9,7 +9,7 @@ class TabWebApp extends StatelessWidget {
     Key? key,
     required this.tabs,
     required this.tabController,
-    this.bodyMaxWidth,
+    this.appBarMaxWidth,
     this.theme,
     this.logo,
   }) : super(key: key);
@@ -23,8 +23,8 @@ class TabWebApp extends StatelessWidget {
   // Logo on top left
   final Widget? logo;
 
-  // App body max width
-  final double? bodyMaxWidth;
+  // AppBar max width
+  final double? appBarMaxWidth;
 
   final TabController tabController;
 
@@ -37,6 +37,7 @@ class TabWebApp extends StatelessWidget {
         tabs: tabs,
         logo: logo,
         tabController: tabController,
+        appBarMaxWidth: appBarMaxWidth,
       ),
       routeInformationParser: TabShellRouteInformationParser(),
     );
