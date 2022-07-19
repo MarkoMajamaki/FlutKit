@@ -1,4 +1,5 @@
 import 'package:flutkit/flutkit.dart';
+import 'package:flutkit/shells/web/tab_shell.dart';
 import 'package:flutter/material.dart';
 
 ///
@@ -30,17 +31,40 @@ class TabShellAppBar extends StatefulWidget {
 }
 
 class _TabShellAppBarState extends State<TabShellAppBar>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, MaterialStateMixin {
   late AnimationController _menuIconAnimationController;
-  late TabShellAppBarStyle _actualStyle;
 
   GlobalKey qweqweKey = GlobalKey();
 
+  late Color _lineIndicatorColor;
+  late Color _selectedLabelColor;
+  late Color _unselectedLabelColor;
+  late Color _outlinedTabColor;
+  late TextStyle _labelStyle;
+  late TextStyle _outlinedLabelStyle;
+
   @override
   Widget build(BuildContext context) {
-    /// Get actual style from theme context or giving style
-    _actualStyle =
-        widget.style ?? Theme.of(context).extension<TabShellAppBarStyle>()!;
+    final TabShellAppBarStyle? widgetStyle = widget.style;
+    final TabShellAppBarStyle? themeStyle =
+        TabShellAppBarStyle.maybeOf(context);
+    final TabShellAppBarStyle defaultStyle = _defaultStyle();
+
+    // Get effective value from widget, inherited or from default theme
+    T? effectiveValue<T>(T? Function(TabShellAppBarStyle? style) getProperty) {
+      final T? widgetValue = getProperty(widgetStyle);
+      final T? themeValue = getProperty(themeStyle);
+      final T? defaultValue = getProperty(defaultStyle);
+      return widgetValue ?? themeValue ?? defaultValue;
+    }
+
+    _lineIndicatorColor = effectiveValue((style) => style?.lineIndicatorColor)!;
+    _selectedLabelColor = effectiveValue((style) => style?.selectedLabelColor)!;
+    _unselectedLabelColor =
+        effectiveValue((style) => style?.unselectedLabelColor)!;
+    _outlinedTabColor = effectiveValue((style) => style?.outlinedTabColor)!;
+    _labelStyle = effectiveValue((style) => style?.labelStyle)!;
+    _outlinedLabelStyle = effectiveValue((style) => style?.outlinedLabelStyle)!;
 
     return Column(
       children: [
@@ -102,7 +126,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
   /// Build content based on available size
   ///
   Widget _buildContent() {
-    if (MediaQuery.of(context).size.width > 884) {
+    if (MediaQuery.of(context).size.width > 950) {
       return _buildTabs();
     } else {
       return _buildMenuButton();
@@ -134,8 +158,8 @@ class _TabShellAppBarState extends State<TabShellAppBar>
           child: TabBar(
             controller: widget.tabController,
             indicator: _buildUnderlineIndicator(),
-            labelColor: _actualStyle.selectedLabelColor,
-            unselectedLabelColor: _actualStyle.unselectedLabelColor,
+            labelColor: _selectedLabelColor,
+            unselectedLabelColor: _unselectedLabelColor,
             isScrollable: true,
             labelPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -158,9 +182,8 @@ class _TabShellAppBarState extends State<TabShellAppBar>
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(1000),
-              color: isSelected ? _actualStyle.outlinedTabColor : Colors.white,
-              border:
-                  Border.all(width: 2, color: _actualStyle.outlinedTabColor),
+              color: isSelected ? _outlinedTabColor : Colors.white,
+              border: Border.all(width: 2, color: _outlinedTabColor),
             ),
             child: Align(
               alignment: Alignment.center,
@@ -168,11 +191,8 @@ class _TabShellAppBarState extends State<TabShellAppBar>
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   tabDefinition.text,
-                  style: TextStyle(
-                    color: isSelected
-                        ? Colors.white
-                        : _actualStyle.outlinedTabColor,
-                  ),
+                  style: _outlinedLabelStyle.copyWith(
+                      color: isSelected ? Colors.white : _outlinedTabColor),
                 ),
               ),
             ),
@@ -180,7 +200,13 @@ class _TabShellAppBarState extends State<TabShellAppBar>
         ),
       );
     } else {
-      return Tab(text: tabDefinition.text);
+      return Tab(
+        child: Text(
+          tabDefinition.text,
+          style: _labelStyle.copyWith(
+              color: isSelected ? _selectedLabelColor : _unselectedLabelColor),
+        ),
+      );
     }
   }
 
@@ -191,7 +217,7 @@ class _TabShellAppBarState extends State<TabShellAppBar>
     return UnderlineTabIndicator(
       borderSide: BorderSide(
         width: 4,
-        color: _actualStyle.lineIndicatorColor,
+        color: _lineIndicatorColor,
       ),
       insets: const EdgeInsets.only(left: 16, right: 16),
     );
@@ -215,6 +241,17 @@ class _TabShellAppBarState extends State<TabShellAppBar>
           ),
         ),
       ),
+    );
+  }
+
+  TabShellAppBarStyle _defaultStyle() {
+    return TabShellAppBarStyle(
+      lineIndicatorColor: Theme.of(context).primaryColor,
+      selectedLabelColor: Theme.of(context).primaryColor,
+      unselectedLabelColor: Colors.black,
+      outlinedTabColor: Theme.of(context).primaryColor,
+      outlinedLabelStyle: TextStyle(color: Theme.of(context).primaryColor),
+      labelStyle: const TextStyle(color: Colors.black),
     );
   }
 }
