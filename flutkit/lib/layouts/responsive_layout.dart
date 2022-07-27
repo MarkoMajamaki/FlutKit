@@ -3,19 +3,24 @@ import 'package:flutter/material.dart';
 class ResponsiveLayout extends StatefulWidget {
   const ResponsiveLayout(
       {Key? key,
-      this.mobileBody,
-      this.tabletBody,
-      this.desktopBody,
-      this.mobileMaxWidth = 800,
-      this.tabletMaxWidth = 1000})
-      : super(key: key);
+      mobileBody,
+      tabletBody,
+      desktopBody,
+      mobileMaxWidth = 800,
+      tabletMaxWidth = 1000})
+      : _mobileBody = mobileBody,
+        _tabletBody = tabletBody,
+        _desktopBody = desktopBody,
+        _mobileMaxWidth = mobileMaxWidth,
+        _tabletMaxWidth = tabletMaxWidth,
+        super(key: key);
 
-  final Widget? mobileBody;
-  final Widget? tabletBody;
-  final Widget? desktopBody;
+  final Widget? Function()? _mobileBody;
+  final Widget? Function()? _tabletBody;
+  final Widget? Function()? _desktopBody;
 
-  final double mobileMaxWidth;
-  final double tabletMaxWidth;
+  final double _mobileMaxWidth;
+  final double _tabletMaxWidth;
 
   @override
   State<ResponsiveLayout> createState() => ResponsiveLayoutState();
@@ -58,30 +63,40 @@ class ResponsiveLayoutState extends State<ResponsiveLayout> {
               originalWidth = constraints.maxHeight;
             }
 
-            if (originalWidth < widget.mobileMaxWidth &&
-                widget.mobileBody != null) {
-              layoutType = ResponsiveLayoutTypes.mobile;
-              return widget.mobileBody!;
-            } else if (originalWidth < widget.tabletMaxWidth &&
-                widget.tabletBody != null) {
-              layoutType = ResponsiveLayoutTypes.tablet;
-              return widget.tabletBody!;
-            } else if (widget.desktopBody != null) {
-              layoutType = ResponsiveLayoutTypes.deskotp;
-              return widget.desktopBody!;
-            } else if (widget.desktopBody != null ||
-                widget.tabletBody != null ||
-                widget.mobileBody != null) {
-              return widget.desktopBody ??
-                  widget.tabletBody ??
-                  widget.mobileBody!;
-            } else {
-              throw Exception();
-            }
+            return _buildBody(originalWidth);
           }),
         );
       },
     );
+  }
+
+  ///
+  /// Build body based on width
+  ///
+  Widget _buildBody(double originalWidth) {
+    if (originalWidth < widget._mobileMaxWidth && widget._mobileBody != null) {
+      layoutType = ResponsiveLayoutTypes.mobile;
+      return widget._mobileBody!()!;
+    } else if (originalWidth < widget._tabletMaxWidth &&
+        widget._tabletBody != null) {
+      layoutType = ResponsiveLayoutTypes.tablet;
+      return widget._tabletBody!()!;
+    } else if (widget._desktopBody != null) {
+      layoutType = ResponsiveLayoutTypes.deskotp;
+      return widget._desktopBody!()!;
+    } else if (widget._desktopBody != null ||
+        widget._tabletBody != null ||
+        widget._mobileBody != null) {
+      if (widget._desktopBody != null) {
+        return widget._desktopBody!()!;
+      } else if (widget._tabletBody != null) {
+        return widget._tabletBody!()!;
+      } else {
+        return widget._mobileBody!()!;
+      }
+    } else {
+      throw Exception();
+    }
   }
 }
 
