@@ -270,6 +270,14 @@ class RenderWrapLayout extends RenderBox
   }
 
   ///
+  /// Allow children to be hit
+  ///
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
+  }
+
+  ///
   /// Layout children
   ///
   List<Rect> _layoutChildren(double maxWidth, double maxHeight) {
