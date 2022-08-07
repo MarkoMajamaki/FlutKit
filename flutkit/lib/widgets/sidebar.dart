@@ -142,9 +142,6 @@ class SideBarState extends State<SideBar> with TickerProviderStateMixin {
     _menuAnimationController.dispose();
     _subMenuAnimationController.dispose();
 
-    if (widget.controller != null) {
-      widget.controller!.dispose();
-    }
     super.dispose();
   }
 

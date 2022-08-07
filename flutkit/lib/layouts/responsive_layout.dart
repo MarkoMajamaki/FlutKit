@@ -6,8 +6,8 @@ class ResponsiveLayout extends StatefulWidget {
       mobileBody,
       tabletBody,
       desktopBody,
-      mobileMaxWidth = 800,
-      tabletMaxWidth = 1000})
+      mobileMaxWidth = 800.0,
+      tabletMaxWidth = 1000.0})
       : _mobileBody = mobileBody,
         _tabletBody = tabletBody,
         _desktopBody = desktopBody,
