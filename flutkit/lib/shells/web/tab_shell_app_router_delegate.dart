@@ -19,8 +19,17 @@ class TabShellAppRouterDelegate extends RouterDelegate<TabShellRoutePath>
     _navigatorKey = GlobalKey<NavigatorState>();
 
     // Listen tab changes to update url with route information parser
-    tabController.addListener(notifyListeners);
+    tabController.addListener(() {
+      // Notify changes only if current tab index changed
+      if (tabController.index != _index) {
+        _index = tabController.index;
+        notifyListeners();
+      }
+    });
   }
+
+  // Current tab index
+  int _index = 0;
 
   // Tab definitions
   final List<TabDefinition> tabs;
